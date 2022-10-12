@@ -1,0 +1,18 @@
+<launch>
+
+    <arg name="stm_port" value="/dev/stm32_nucleo" />
+    <arg name="stm_baud" value="921600" />
+
+    <node pkg="pdc_visualization" name="pdc_visualization" type="pdc_visualization.py" output="screen" />
+
+  <!--serial-->
+
+    <!--node pkg="rosserial_python" type="serial_node.py" name="rosserial" output="screen">
+        <param name="port" value="$(arg stm_port)" />
+        <param name="baud" value="$(arg stm_baud)" />
+    </node-->
+
+
+</launch>
+
+

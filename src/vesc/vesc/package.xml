@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>vesc</name>
+  <version>0.0.1</version>
+  <description>
+    Metapackage for ROS interface to the Vedder VESC open source motor controller.
+  </description>
+
+  <maintainer email="rockettm@cs.washington.edu">Matthew Rockett</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>vesc_ackermann</run_depend>
+  <run_depend>vesc_driver</run_depend>
+  <run_depend>vesc_main</run_depend>
+  <run_depend>vesc_msgs</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+
+</package>
