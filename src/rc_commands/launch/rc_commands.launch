@@ -1,0 +1,10 @@
+<launch>
+
+    <!--paramfiles-->
+    <arg name="rc_config" default="$(find mxck_run)/config/rc_config.yaml" />
+   
+    <rosparam file="$(arg rc_config)" command="load" />
+
+    <node pkg="rc_commands" name="rc_commands" type="rc_commands.py" output="screen" />
+
+</launch>
