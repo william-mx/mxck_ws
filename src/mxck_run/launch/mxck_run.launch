@@ -1,16 +1,19 @@
 <launch>
-  <arg name="launch_camera" value="true" />
-  <arg name="run_image_view" value="true" />
+  <arg name="launch_camera" value="false" />
+  <arg name="run_image_view" value="false" />
   <arg name="launch_lidar" value="false" />
   <arg name="launch_serial" value="false" /> <!--us, lights, imu, rc-->
   <arg name="launch_vesc" value="false" />
   <arg name="manual_control" value="false"/> 
   <arg name="control_type" value="rc"/> <!--rc or joy-->
+  <arg name="rc_commands" value="false" />
+  <arg name="record_bagfile" value="false" />
 
-  <arg name="record_bagfile" value="true" />
-  <arg name="record_topics" value="/uss_values" />
-  <arg name="record_path" value="$(find mxck_run)/bagfiles/bag" />
-   
+
+  <!--record-->
+  <arg name="record_topics" default="/camera/color/image_raw" />
+  <arg name="record_path" default="$(find mxck_run)/bagfiles/bag" />
+
    <!--ports-->
   <arg name="joy_port" value="/dev/input/js0" />
   <arg name="vesc_port" value="/dev/vesc" />
@@ -31,8 +34,8 @@
   <!--camera-->
   <group if="$(arg launch_camera)">
     <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
-      <arg name="color_width" value="1920"/>
-      <arg name="color_height" value="1080"/>
+      <arg name="color_width" value="640"/>
+      <arg name="color_height" value="360"/>
       <arg name="color_fps" value="6"/>
       <arg name="enable_confidence" value="False"/>
       <arg name="enable_depth" value="False"/>
@@ -46,11 +49,17 @@
     </node>
   </group>
 
+
   <!--record-->
   <group if="$(arg record_bagfile)">
-    <node pkg="rosbag" type="record" name="record_bagfile" 
-        args="record -o $(arg record_path) $(arg record_topics) ">
+    <node name="record_bagfile" pkg="rosbag" type="record" 
+      args="record -o $(arg record_path) $(arg record_topics)" >
     </node>
+  </group>
+
+  <!--rc commands-->
+  <group if="$(arg rc_commands)">
+    <node name="rc_commands" pkg="rc_commands" type="rc_commands.py" output="screen"/>
   </group>
   
   <!--lidar-->
@@ -69,7 +78,7 @@
   <!--manual control-->
   <group if="$(arg manual_control)">
     <group if="$(eval arg('control_type') == 'rc')">
-      <node pkg="mxck_run" name="rc_control" type="rc_control.py" output="screen" />
+      <node pkg="mxck_run" name="rc_teleop" type="rc_teleop.py" output="screen" />
     </group>  
 
     <group if="$(eval arg('control_type') == 'joy')">

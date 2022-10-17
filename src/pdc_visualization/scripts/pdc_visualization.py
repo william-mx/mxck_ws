@@ -12,12 +12,12 @@ from datetime import datetime
 
 class pdc_visualization:
 
-  def __init__(self):
+  def __init__(self, to_video = False, publish = False, live = False):
 
     # output paramters
-    self.to_video = False # save result as video
-    self.publish = False # publish result as image message
-    self.live = True # show result live
+    self.to_video = to_video # save result as video
+    self.publish = publish # publish result as image message
+    self.live = live # show result live
 
     # base directory 
     r = rospkg.RosPack()
@@ -110,8 +110,7 @@ class pdc_visualization:
       pdc.out.release()
       
 
-  def callback(self,data):
-
+  def callback(self,data):	
     pdc_image = self.visualize_pdc(data)
 
     # save result as video
@@ -130,8 +129,11 @@ class pdc_visualization:
     
     # show result live 
     if self.live:
-      cv2.imshow("Image window", pdc_image)
-      cv2.waitKey(100) # ms
+      try:
+         cv2.imshow("Image window", pdc_image)
+         cv2.waitKey(int(1000/self.fps)) # ms
+      except:
+         pass
 
     
 
@@ -141,7 +143,7 @@ if __name__ == '__main__':
   # initialize node
   rospy.init_node('pdc_visualization', anonymous=True)
 
-  pdc = pdc_visualization()
+  pdc = pdc_visualization(live = True)
 
   try:
     rospy.spin()

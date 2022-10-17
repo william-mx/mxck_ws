@@ -17,7 +17,7 @@ class lighting_control:
         'm': (255,   0, 255), # magenta
         'y': (255,  70,   0), # yellow
         'o': (255,  40,   0), # orange
-        'p': (255,   5,   5), # orange
+        'p': (255,   5,   5), # pink
         'w': (255,  80,  80)} # white
 
         # define "infinite" number of cycles

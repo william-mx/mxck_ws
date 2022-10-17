@@ -25,9 +25,9 @@ speed_min = rospy.get_param("/speed_min")
 speed_mid = rospy.get_param("/speed_mid")
 speed_max = rospy.get_param("/speed_max")
 
-mode_mid = 2
+mode_mid = 0
 
-class rc_control:
+class RcControl:
 
   def __init__(self):
 
@@ -40,7 +40,7 @@ class rc_control:
     self.ackMsg = AckermannDriveStamped()
 
     # subscribe to pwm signals from rc receiver
-    self.rc_sub = rospy.Subscriber('/veh_remote_ctrl', UInt16MultiArray, callback)
+    self.rc_sub = rospy.Subscriber('/veh_remote_ctrl', UInt16MultiArray, self.callback)
 
     # publish ackermann messages to VESC
     self.ackermann_pub = rospy.Publisher('/ackermann_cmd', AckermannDriveStamped, queue_size=10) 
@@ -72,11 +72,13 @@ class rc_control:
 
     # mode
     if abs(mode_min_pwm - mode_pwm) < self.mode_pwm_threshold:
-       mode = 3
+       mode = -1
     elif abs(mode_mid_pwm - mode_pwm) < self.mode_pwm_threshold:
-       mode = 2
+       mode =  0
     elif abs(mode_max_pwm - mode_pwm) < self.mode_pwm_threshold:
-       mode = 1
+       mode =  1
+    
+    return steering_ack, throttle_ack, mode
 
 
   def callback(self,data):
@@ -91,10 +93,11 @@ class rc_control:
 
 
 if __name__ == '__main__':
-  rc = rc_control()
 
   # initialize node
   rospy.init_node('rc_control', anonymous=True)
+
+  rc = RcControl()
 
   try:
     rospy.spin()

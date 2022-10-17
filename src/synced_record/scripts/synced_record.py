@@ -28,7 +28,7 @@ class SyncedRecord:
         self.seq = 0
 
         # init parameters
-        self.slop = 0.05 # 50 ms
+        self.slop = 0.1 # 100 ms
         self.queue_size = 3
 
         # init topics
@@ -40,11 +40,6 @@ class SyncedRecord:
         base_dir = r.get_path('synced_record')
         self.bag_dir = base_dir + '/bagfiles'
 
-        self.bag_fpath = self.bag_dir +"/synced_bag_{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
-
-        # open bagfile in write mode
-        self.bag = rosbag.Bag(self.bag_fpath, 'w')
-
         # Subscripe to Image and AckermannDrive
         self.im_sub = message_filters.Subscriber(self.t_im, Image)
         self.ac_sub = message_filters.Subscriber(self.t_ac, AckermannDriveStamped)
@@ -53,19 +48,48 @@ class SyncedRecord:
 
         ts.registerCallback(self.callback)
 
+        self.recording = False # status
+        self.bag = None
+
+
+    def start(self):
+
+      self.bag_fpath = self.bag_dir +"/synced_bag_{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
+
+      # open bagfile in write mode
+      self.bag = rosbag.Bag(self.bag_fpath, 'w')
+
+      rospy.loginfo("Recording started.")
+
+      self.recording = True
+
+    def stop(self):
+      if not self.recording: return
+
+      self.bag.close()
+      self.bag = None
+
+      rospy.loginfo("Recording stoped. Save as %s.", self.bag_fpath)
+
+      self.recording = False
 
     def callback(self, image, ackermann_cmd):
+      if not self.recording: return 
 
       rospy.loginfo("Recieved set of message")
 
       # match sequence number for later assignment
       image.header.seq = self.seq
       ackermann_cmd.header.seq = self.seq
+	
 
-      self.bag.write(self.t_im, image)
-      self.bag.write(self.t_ac, ackermann_cmd)
+      try:
+         self.bag.write(self.t_im, image)
+         self.bag.write(self.t_ac, ackermann_cmd)
   
-      self.seq += 1
+         self.seq += 1
+      except IOError:
+         rospy.logwarn("I/O operation on closed bag.")
 
 
 if __name__ == '__main__':
@@ -75,11 +99,11 @@ if __name__ == '__main__':
 
   rec = SyncedRecord()
 
+
   while not rospy.is_shutdown():
     pass
   
-  rec.bag.close()
-  rospy.loginfo("Save as %s.", rec.bag_fpath)
+  rec.stop()
   rospy.loginfo("Shutting down synced record.")
 
 
