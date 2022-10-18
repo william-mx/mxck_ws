@@ -103,7 +103,7 @@ class ImageExport:
 
 if __name__ == '__main__':
 
-    bag_fname = 'synced_bag_2022_09_29_20_17_41'
+    bag_fname = 'synced_bag_2022_10_14_13_27_01'
 
     imex = ImageExport(bag_fname)
     imex.export_images()

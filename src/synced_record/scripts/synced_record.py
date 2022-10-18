@@ -64,7 +64,7 @@ class SyncedRecord:
       self.recording = True
 
     def stop(self):
-      if not self.recording: return
+      if not self.recording or self.bag is None: return
 
       self.bag.close()
       self.bag = None
@@ -74,7 +74,7 @@ class SyncedRecord:
       self.recording = False
 
     def callback(self, image, ackermann_cmd):
-      if not self.recording: return 
+      if not self.recording or self.bag is None: return 
 
       rospy.loginfo("Recieved set of message")
 
