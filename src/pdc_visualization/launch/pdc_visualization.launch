@@ -3,7 +3,8 @@
     <arg name="stm_port" value="/dev/stm32_nucleo" />
     <arg name="stm_baud" value="921600" />
 
-    <node pkg="pdc_visualization" name="pdc_visualization" type="pdc_visualization.py" output="screen" />
+    <node pkg="pdc_visualization" name="pdc_visualization" type="pdc_visualization.py" 
+          output="screen" respawn="true" />
 
   <!--serial-->
 
