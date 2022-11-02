@@ -1,3 +1,0 @@
-[submodule "src/realsense"]
-	path = src/realsense
-	url = https://github.com/intel-ros/realsense.git
