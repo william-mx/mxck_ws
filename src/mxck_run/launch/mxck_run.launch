@@ -1,14 +1,14 @@
 <launch>
   <arg name="launch_camera" value="true" />
-  <arg name="run_image_view" value="true" />
+  <arg name="run_image_view" value="false" />
   <arg name="launch_lidar" value="false" />
-  <arg name="launch_serial" value="true" /> <!--us, lights, imu, rc-->
+  <arg name="launch_serial" value="false" /> <!--us, lights, imu, rc-->
   <arg name="launch_vesc" value="false" />
   <arg name="manual_control" value="false"/> 
   <arg name="control_type" value="rc"/> <!--rc or joy-->
   <arg name="rc_commands" value="false" />
   <arg name="record_bagfile" value="false" />
-  <arg name="dyn_reconfigure" value="true" /> <!--Set Camera Controls Using Dynamic Reconfigure Params-->
+  <arg name="dyn_reconfigure" value="false" /> <!--Set Camera Controls Using Dynamic Reconfigure Params-->
 
   <!--record-->
   <arg name="record_topics" default="/scan" /> <!--/camera/color/image_raw-->
@@ -47,6 +47,9 @@
       <arg name="color_fps" value="6"/>
       <arg name="enable_confidence" value="False"/>
       <arg name="enable_depth" value="False"/>
+      <arg name="enable_accel" value="True"/>
+      <arg name="enable_gyro" value="True"/>
+      <arg name="unite_imu_method" value="copy"/>
     </include>
 
     <group if="$(arg dyn_reconfigure)">
