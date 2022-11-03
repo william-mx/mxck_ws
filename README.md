@@ -3,6 +3,7 @@
 Clone this repository.
 ```
 git clone --recurse-submodules https://github.com/william-mx/mxck_ws.git
+git checkout dev
 ```
 
 Make shell script executable.
