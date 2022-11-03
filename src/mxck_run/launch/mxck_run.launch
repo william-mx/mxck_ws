@@ -46,10 +46,12 @@
       <arg name="color_height" value="360"/>
       <arg name="color_fps" value="6"/>
       <arg name="enable_confidence" value="False"/>
+      <arg name="enable_color" value="False"/>
       <arg name="enable_depth" value="False"/>
       <arg name="enable_accel" value="True"/>
       <arg name="enable_gyro" value="True"/>
       <arg name="unite_imu_method" value="copy"/>
+      <arg name="initial_reset" value="True"/>
     </include>
 
     <group if="$(arg dyn_reconfigure)">
