@@ -5,6 +5,7 @@ Clone this repository.
 git clone --recurse-submodules https://github.com/william-mx/mxck_ws.git
 cd ./mxck_ws
 git checkout dev
+git submodule update --recursive
 ```
 
 Make shell script executable.
