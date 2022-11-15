@@ -4,7 +4,7 @@ import rospy
 from std_msgs.msg import UInt16MultiArray
 from collections import OrderedDict
 
-class lighting_control:
+class LightingControl:
 
     def __init__(self):
 	
@@ -21,11 +21,11 @@ class lighting_control:
         'w': (255,  80,  80)} # white
 
         # define "infinite" number of cycles
-        self.c_inf = 65535 # uint16 max
+        self.c_inf = 65534 # uint16 max
 
         # subscribe vehicle lighting and status led
-        self.lights_pub = rospy.Publisher("/lights",UInt16MultiArray)
-        self.status_pub = rospy.Publisher("/brake_light",UInt16MultiArray)
+        self.lights_pub = rospy.Publisher("/lights",UInt16MultiArray, queue_size=100)
+        self.status_pub = rospy.Publisher("/brake_light",UInt16MultiArray, queue_size=100)
 
         # readable config format
         self.lights_config = OrderedDict()
@@ -46,7 +46,7 @@ class lighting_control:
         self.status_config['B'] = 0
         self.status_config['ms_on'] = 0
         self.status_config['ms_off'] = 0
-        self.status_config['cycles'] = 0
+        self.status_config['cycles'] = 0 # (-1) inf loop, (0) contineously on, (N) N loops
 
 
         # initialize messages
@@ -117,7 +117,6 @@ class lighting_control:
         self.set_indic_pulse(ms_on, ms_off, cycles)
         self.update_lights()
 
-
     def headlight_flash(self, duration = None):
         if duration is None: return
         
@@ -127,11 +126,14 @@ class lighting_control:
         self.lights_config['highbeam_cycles'] = 1
         self.update_lights()
 
-
-    def push_brake(self, add_brake_light = True):
+    def push_brake(self, add_brake_light = True, duration_s = None):
 
         self.lights_config['rear_light'] = 2 if add_brake_light else 1
         self.update_lights()
+
+        if not duration_s is None:
+            rospy.sleep(duration_s)
+            self.release_brake()
 
     def release_brake(self):
 
@@ -145,6 +147,8 @@ class lighting_control:
 	
 
     def set_status(self, c = 'r', ms_on = 1000, ms_off = 1000, cycles = None):
+
+        cycles = self.c_inf if cycles == -1 else cycles # inf loop
 
         self.status_config['R'] = self.basic_colors[c][0]
         self.status_config['G'] = self.basic_colors[c][1]
@@ -161,9 +165,9 @@ if __name__ == '__main__':
     # initialize node
     rospy.init_node('lights_control', anonymous=True)
 
-    lit = lighting_control()
+    lit = LightingControl()
     
     try:
         rospy.spin()
     except KeyboardInterrupt:
-        print("Shutting down rc control")
+        print("Shutting lighting control")

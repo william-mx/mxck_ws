@@ -65,9 +65,9 @@ class RcControl:
     if abs(throttle_pwm - throttle_mid_pwm) < self.throttle_pwm_threshold:
        throttle_ack = 0.0
     elif throttle_pwm >= throttle_mid_pwm:
-       throttle_ack = servo_min * (throttle_pwm - throttle_mid_pwm) / (throttle_min_pwm - throttle_mid_pwm)
+       throttle_ack = speed_min * (throttle_pwm - throttle_mid_pwm) / (throttle_min_pwm - throttle_mid_pwm)
     else:
-       throttle_ack = servo_max * (throttle_pwm - throttle_mid_pwm) / (throttle_max_pwm - throttle_mid_pwm)
+       throttle_ack = speed_max * (throttle_pwm - throttle_mid_pwm) / (throttle_max_pwm - throttle_mid_pwm)
 	 
 
     # mode
