@@ -10,14 +10,25 @@ import numpy as np
 import os
 from datetime import datetime
 
-class pdc_visualization:
+class PDCvisualization:
 
-  def __init__(self, to_video = False, publish = False, live = False):
+  def __init__(self):
 
-    # output paramters
-    self.to_video = to_video # save result as video
-    self.publish = publish # publish result as image message
-    self.live = live # show result live
+    # init output
+    self.to_video = self.publish = self.live = False
+
+    self.output_types = [ 'to_video', # save result as video
+                          'publish',  # publish result as image message
+                          'live']     # show result live
+
+
+    # get param, optionally pass in a default value to use if the parameter is not set
+    output_type = rospy.get_param('pdc_output_type', 'live')
+
+    # check parameter
+    if not output_type in self.output_types:
+      rospy.logerr('Invalid pdc output parmater. Choose between %s, %s and %s.' 
+      % tuple(self.output_types))
 
     # base directory 
     r = rospkg.RosPack()
@@ -143,7 +154,7 @@ if __name__ == '__main__':
   # initialize node
   rospy.init_node('pdc_visualization', anonymous=True)
 
-  pdc = pdc_visualization(live = True)
+  pdc = PDCvisualization()
 
   try:
     rospy.spin()
