@@ -1,4 +1,0 @@
-xref_ofst_m = 0.55 m # offset reference point to front axle [m]
-calibration rectangle dimensions = 90x90cm
-fps: 6
-width x height = 640 x 360
