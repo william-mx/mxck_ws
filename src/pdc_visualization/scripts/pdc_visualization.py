@@ -23,12 +23,16 @@ class PDCvisualization:
 
 
     # get param, optionally pass in a default value to use if the parameter is not set
-    output_type = rospy.get_param('pdc_output_type', 'live')
-
+    output_type = rospy.get_param("pdc_output_type", 'live')
+	
+    
     # check parameter
     if not output_type in self.output_types:
       rospy.logerr('Invalid pdc output parmater. Choose between %s, %s and %s.' 
       % tuple(self.output_types))
+    else:
+      self.__dict__[output_type] = True  
+      rospy.loginfo("output_type: %s", output_type)
 
     # base directory 
     r = rospkg.RosPack()
@@ -49,9 +53,12 @@ class PDCvisualization:
     # save result as video
     results_dir = base_dir + '/results'
     
-    result_fname = results_dir + "/result_{:%Y_%m_%d_%H_%M_%S}.avi".format(datetime.now())
+    if not os.path.exists(results_dir):
+      os.mkdir(results_dir)
+    
+    self.result_fname = results_dir + "/result_{:%Y_%m_%d_%H_%M_%S}.avi".format(datetime.now())
     self.fps = 50 # check frquency with rostopic hz /uss_values
-    self.out = cv2.VideoWriter(result_fname,cv2.VideoWriter_fourcc(*'MJPG'), self.fps, self.size)
+    self.out = cv2.VideoWriter(self.result_fname,cv2.VideoWriter_fourcc(*'MJPG'), self.fps, self.size)
 
     # load pixel coordinates for each patch; shape (num_sensors x num_sections)
     coor_fpath = base_dir + '/images/patch_px_coords.pkl'
@@ -115,15 +122,17 @@ class PDCvisualization:
 
   def ctrl_shutdown(self):
     '''controlled shutdown'''
-
+	
     # close video
     if pdc.to_video:
+      rospy.loginfo("Video is saved at %s", self.result_fname)
       pdc.out.release()
       
 
   def callback(self,data):	
     pdc_image = self.visualize_pdc(data)
-
+    
+    
     # save result as video
     if self.to_video:
       self.out.write(pdc_image)
@@ -156,9 +165,9 @@ if __name__ == '__main__':
 
   pdc = PDCvisualization()
 
-  try:
-    rospy.spin()
-  except KeyboardInterrupt:
-    pdc.ctrl_shutdown()
+  while not rospy.is_shutdown():
+    pass
+
+  pdc.ctrl_shutdown()
     
 

@@ -1,11 +1,7 @@
 <launch>
 
-    <arg name="pdc_output_type" value="live" /> <!--live, publish, to_video-->
+    <param name="pdc_output_type" value="live" /> <!--live, publish, to_video-->
 
-    <node pkg="pdc_visualization" type="pdc_visualization.py" name="pdc_visualization" output="screen" respawn="true">
-        <param name="pdc_output_type" value="$(arg pdc_output_type)" />
-    </node>
+    <node pkg="pdc_visualization" type="pdc_visualization.py" name="pdc_visualization" output="screen" respawn="true" />
 
 </launch>
-
-
