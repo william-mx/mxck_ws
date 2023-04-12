@@ -1,0 +1,41 @@
+<launch>
+
+	<arg name="control_type" value="rc"/> <!--rc or joy-->
+	
+	<param name="control_type" value="$(arg control_type)" /> <!--rc, joy-->
+
+	<!--paramfiles-->
+	<arg name="control_config" default="$(find vehicle_control)/config/control_config.yaml" />
+
+	<rosparam file="$(arg control_config)" command="load" />
+
+	<!--ports-->
+	<arg name="joy_port" value="/dev/input/js0" />
+	<arg name="vesc_port" value="/dev/vesc" />
+  	
+  	<!--vesc-->
+    <include file="$(find vesc_driver)/launch/vesc_driver_node.launch" >
+      <arg name="port" value="$(arg vesc_port)" />
+    </include>
+ 	
+ 	<!--rc control-->
+	<group if="$(eval arg('control_type') == 'rc')">
+		<!--serial-->
+		<include file="$(find stm32_nucleo)/launch/launch_nucleo.launch" />
+
+		<node name="rc_to_joy" pkg="vehicle_control" type="rc_to_joy.py"  output="screen" required = "true"/>
+	</group>  
+	
+	<!--joystick-->
+	<group if="$(eval arg('control_type') == 'joy')">
+		<node pkg="joy" type="joy_node" name="joy_node" output="screen">
+			<param name="dev" value="$(arg joy_port)" />
+		</node>
+	</group>
+    
+
+	<node name="joy_to_ackermann" pkg="vehicle_control" type="joy_to_ackermann.py"  output="screen" required = "true"/>
+
+	<node name="ackermann_to_vesc" pkg="vehicle_control" type="ackermann_to_vesc.py"  output="screen" required = "true"/>
+	
+</launch>
