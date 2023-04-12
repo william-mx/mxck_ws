@@ -5,10 +5,10 @@ Clone this repository.
 git clone --recurse-submodules https://github.com/william-mx/mxck_ws.git
 ```
 
-Make shell script executable.
+Make shell scripts and python files executable.
 ```
 cd ./mxck_ws
-chmod +x run_ros_docker.sh add_ros_docker.sh 
+find . -type f -name '*.py' -o -name '*.sh' -exec chmod +x {} \;
 ```
 
 Run docker image
