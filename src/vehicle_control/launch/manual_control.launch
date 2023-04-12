@@ -1,6 +1,6 @@
 <launch>
 
-	<arg name="control_type" value="rc"/> <!--rc or joy-->
+	<arg name="control_type" default="rc"/> <!--rc or joy-->
 	
 	<param name="control_type" value="$(arg control_type)" /> <!--rc, joy-->
 
@@ -10,8 +10,8 @@
 	<rosparam file="$(arg control_config)" command="load" />
 
 	<!--ports-->
-	<arg name="joy_port" value="/dev/input/js0" />
-	<arg name="vesc_port" value="/dev/vesc" />
+	<arg name="joy_port" default="/dev/input/js0" />
+	<arg name="vesc_port" default="/dev/vesc" />
   	
   	<!--vesc-->
     <include file="$(find vesc_driver)/launch/vesc_driver_node.launch" >

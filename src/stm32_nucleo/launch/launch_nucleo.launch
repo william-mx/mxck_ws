@@ -13,7 +13,5 @@
 
 
     <node pkg="stm32_nucleo" name="add_imu_timestamp" type="add_imu_timestamp.py"/>
-    
-    
 
 </launch>
