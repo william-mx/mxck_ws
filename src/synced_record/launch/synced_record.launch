@@ -1,4 +1,0 @@
-<launch>
-  <node name="synced_record" pkg="synced_record" type="synced_record.py" output="screen"/>
-</launch>
-
