@@ -1,0 +1,16 @@
+<launch>
+
+  <!--play bagfile-->
+  <arg name="file_path" default="$(find lane_detection)/bagfiles/left_round.bag" />
+
+  <node name="play_bagfile" pkg="rosbag" type="play" 
+      args="-l $(arg file_path) --wait-for-subscribers" >
+  </node>
+
+  <!--lane detection-->
+  <node pkg="lane_detection" type="simple_lane_detection.py" name="simple_lane_detection" required = "true" />
+
+</launch>
+
+
+

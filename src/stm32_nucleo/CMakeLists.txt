@@ -161,6 +161,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/add_imu_timestamp.py
+  scripts/lights_example_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

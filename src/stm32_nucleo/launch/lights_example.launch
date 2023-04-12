@@ -1,0 +1,9 @@
+<launch>
+
+	<!--serial-->
+	<include file="$(find stm32_nucleo)/launch/launch_nucleo.launch" />
+
+    <node pkg="stm32_nucleo" name="lights_example_node" type="lights_example_node.py"/>
+    
+    
+</launch>

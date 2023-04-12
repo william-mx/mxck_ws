@@ -1,7 +1,11 @@
 <launch>
 
-    <param name="pdc_output_type" value="live" /> <!--live, publish, to_video-->
+	<param name="pdc_output_type" value="live" /> <!--live, publish, to_video-->
 
-    <node pkg="pdc_visualization" type="pdc_visualization.py" name="pdc_visualization" output="screen" respawn="true" />
+	<!--serial-->
+	<include file="$(find stm32_nucleo)/launch/launch_nucleo.launch" />
+
+    	<!--pdc visualization-->
+	<node pkg="pdc_visualization" type="pdc_visualization.py" name="pdc_visualization" output="screen" respawn="true" />
 
 </launch>
