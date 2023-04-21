@@ -4,6 +4,7 @@ import rospy
 from ackermann_msgs.msg import AckermannDriveStamped
 from std_msgs.msg import Float64
 from math import atan
+import numpy as np
 
 class AckermannToVesc:
 
@@ -30,7 +31,13 @@ class AckermannToVesc:
       steer_rad = ackermann_msg.drive.steering_angle
       speed = ackermann_msg.drive.speed
 
-      erpm = self.speed_to_erpm_gain * speed + self.speed_to_erpm_offset
+      # Similar to real vehicles, carkits cannot drive infinitely slow. 
+      # That is why we set a minimum starting speed.
+      # True sensorless commutation is possible only with motor speeds of 500–1000 rpm and up.
+      if abs(speed) > self.speed_clip:
+         erpm = self.speed_to_erpm_gain * speed
+      else:
+         erpm = np.sign(speed) * self.speed_to_erpm_gain * self.speed_clip
 
       if abs(steer_rad) > self.rad_max:
          rospy.logwarn("Clipping steering command to +/- %.3f" %self.rad_max)
@@ -56,8 +63,9 @@ class AckermannToVesc:
       self.lr_rmin = rospy.get_param("/lr_rmin")
       self.rr_rmin = rospy.get_param("/rr_rmin")
       self.speed_to_erpm_gain = rospy.get_param("/speed_to_erpm_gain")
-      self.speed_to_erpm_offset = rospy.get_param("/speed_to_erpm_offset")
+      self.speed_clip = rospy.get_param("/speed_clip")
       
+      rospy.loginfo("The starting speed is set to +/- %.1f m/s" % self.speed_clip)
 
    def init_mapping_function(self):
       self.lr_rad_max = atan(self.wheelbase / self.lr_rmin)

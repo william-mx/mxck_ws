@@ -140,7 +140,6 @@ class PDCvisualization:
     # publish as image message
     if self.publish:
       try:
-        pass
         self.image_message = self.bridge.cv2_to_imgmsg(pdc_image, encoding="bgr8")
       except CvBridgeError as e:
         print(e)
