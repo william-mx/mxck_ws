@@ -33,7 +33,7 @@ class ScanVisualization:
     ax.set_rticks([]) # ticks off
     ax.set_rlim(0, r[np.isfinite(r)].max() + .1)
 
-    fig.colorbar(pts, orientation = 'horizontal')
+    fig.colorbar(pts, label = 'distance [m]', orientation = 'horizontal')
 
     # draw figure
     fig.canvas.draw()
