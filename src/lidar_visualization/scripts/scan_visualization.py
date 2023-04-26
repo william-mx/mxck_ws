@@ -28,7 +28,7 @@ class ScanVisualization:
     r = np.array(data.ranges) # ranges
     theta = np.linspace(data.angle_min, data.angle_max, len(r)) # angles
 
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize = (10,10))
     pts = ax.scatter(theta, r, c = r, cmap = self.cmap, marker = '.')
     ax.set_rticks([]) # ticks off
     ax.set_rlim(0, r[np.isfinite(r)].max() + .1)
