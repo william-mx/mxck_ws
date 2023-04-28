@@ -49,8 +49,8 @@ speed_max:  2.5 # forward
 
 # Similar to real vehicles, carkits cannot drive infinitely slow. 
 # That is why we set a minimum starting speed.
-# True sensorless commutation is possible only with motor speeds of 500–1000 rpm and up.
-speed_clip: 0.5 # the carkit starts with +/- ... m/s 
+# True sensorless commutation is possible only with motor speeds of 500-1000 rpm and up.
+speed_clip: 0.2 # the carkit starts with +/- ... m/s 
 
 # manual control
 

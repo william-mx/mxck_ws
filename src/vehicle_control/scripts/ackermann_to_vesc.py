@@ -33,7 +33,7 @@ class AckermannToVesc:
 
       # Similar to real vehicles, carkits cannot drive infinitely slow. 
       # That is why we set a minimum starting speed.
-      # True sensorless commutation is possible only with motor speeds of 500–1000 rpm and up.
+      # True sensorless commutation is possible only with motor speeds of 500-1000 rpm and up.
       if abs(speed) > self.speed_clip:
          erpm = self.speed_to_erpm_gain * speed
       else:
