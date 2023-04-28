@@ -8,7 +8,8 @@ git clone --recurse-submodules https://github.com/william-mx/mxck_ws.git
 Make shell scripts and python files executable.
 ```
 cd ./mxck_ws
-find . -type f -name '*.py' -o -name '*.sh' -exec chmod +x {} \;
+sudo find . -type f -name '*.py' -o -name '*.sh' -exec chmod +x {} \;
+sudo find . -type f -name '*.py' -exec dos2unix {} \;
 ```
 
 Run docker image
