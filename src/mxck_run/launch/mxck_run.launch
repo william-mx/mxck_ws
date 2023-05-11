@@ -1,6 +1,6 @@
 <launch>
   <!--camera-->
-  <arg name="launch_camera" value="true" />
+  <arg name="launch_camera" value="false" />
   <arg name="run_image_view" value="false" /> <!-- view camera image-->
   <arg name="dyn_reconfigure" value="false" /> <!--Set Camera Controls Using Dynamic Reconfigure Params-->
 
@@ -16,6 +16,10 @@
   <arg name="launch_pdc" value="false" /> <!--Park Distance Control (PDC)-->
   <arg name="launch_lights" value="false" /> <!--lights example node-->
 
+  <!--rosbag-->
+  <arg name="rosbag_record" value="false" /> <!--record topics-->
+  <arg name="record_topics" value="/uss_values_stamped" />
+  <arg name="record_path" value="$(find mxck_run)/bagfiles/uss" />
 
    <!--ports-->
   <arg name="joy_port" value="/dev/input/js0" />
@@ -92,6 +96,13 @@
 	<!--lights example node-->
   <group if="$(arg launch_lights)">
 	  <include file="$(find stm32_nucleo)/launch/lights_example.launch" />
+  </group>
+
+  <!--record-->
+  <group if="$(arg rosbag_record)">
+    <node pkg="rosbag" type="record" name="rosbag_record" 
+        args="record -o $(arg record_path) $(arg record_topics) ">
+    </node>
   </group>
 
 </launch>
