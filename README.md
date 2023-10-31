@@ -12,17 +12,17 @@ sudo find . -type f -name '*.py' -o -name '*.sh' -exec chmod +x {} \;
 sudo find . -type f -name '*.py' -exec dos2unix {} \;
 ```
 
-Build docker image
+Build docker image.
 ```
 sudo docker build -t mxck_base_melodic .
 ```
 
-Run docker image
+Run docker image.
 ```
 ./run_ros_docker.sh
 ```
 
-Build the workspace
+Build the workspace.
 ```
 catkin_make
 source devel/setup.bash
