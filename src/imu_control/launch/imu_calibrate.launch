@@ -1,0 +1,9 @@
+<launch>
+
+    <!--serial-->
+    <include file="$(find mxck_run)/launch/nucleo_run.launch" />
+
+    <node pkg="imu_control" name="imu_calibrate" type="imu_calibrate.py" output="screen"/>
+    
+    
+</launch>

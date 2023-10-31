@@ -1,0 +1,12 @@
+<launch>
+
+  <arg name="stm_port" value="/dev/stm32_nucleo" />
+  <arg name="stm_baud" value="921600" />
+  
+  <!--serial-->
+  <node pkg="rosserial_python" type="serial_node.py" name="rosserial" required="true">
+    <param name="port" value="$(arg stm_port)" />
+    <param name="baud" value="$(arg stm_baud)" />
+  </node>
+
+</launch>

@@ -1,0 +1,88 @@
+<launch>
+  <!--camera-->
+  <arg name="launch_camera" value="false" />
+
+  <!--manual control-->
+  <arg name="launch_vesc" value="false"/> 
+
+  <!--lidar-->
+  <arg name="launch_lidar" value="false" />
+
+  <!--serial-->
+  <arg name="launch_serial" value="true" /> <!--us, lights, imu, rc-->
+
+  <!--pdc visualization-->
+  <arg name="launch_pdc" value="false" />
+
+  <!--imu filter-->
+  <arg name="filter_imu" value="true" />
+  
+  <!--foxglove-->
+  <arg name="launch_foxglove" value="true" /> <!--stream data using foxglove-->
+
+
+
+   <!--ports-->
+  <arg name="joy_port" value="/dev/input/js0" />
+  <arg name="vesc_port" value="/dev/vesc" />
+  <arg name="stm_port" value="/dev/stm32_nucleo" />
+  <arg name="stm_baud" value="921600" />
+  
+
+
+  <group if="$(arg launch_camera)">
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+      <arg name="color_width" value="640"/> <!--static params-->
+      <arg name="color_height" value="360"/>
+      <arg name="color_fps" value="6"/>
+      <arg name="enable_confidence" value="False"/>
+      <arg name="enable_depth" value="False"/>
+      <arg name="enable_accel" value="False"/>
+      <arg name="enable_gyro" value="False"/>
+      <arg name="unite_imu_method" value="copy"/>
+    </include>
+  </group>
+
+
+  <!--lidar-->
+  <group if="$(arg launch_lidar)">
+    <include file="$(find rplidar_ros)/launch/rplidar.launch" />
+  </group>
+
+
+  <!--manual control-->
+  <group if="$(arg launch_vesc)">
+    <include file="$(find vesc_driver)/launch/vesc_driver_node.launch" >
+      <arg name="port" value="$(arg vesc_port)" />
+    </include>
+  </group>
+
+  <!--serial-->
+  <group if="$(arg launch_serial)">
+    <include file="$(find mxck_run)/launch/nucleo_run.launch" />
+  </group>
+
+  <!--pdc visualization-->
+  <group if="$(arg launch_pdc)">
+    <include file="$(find pdc_visualization)/launch/pdc_visualization.launch" />
+  </group>
+
+  <!--filter imu-->
+  <group if="$(arg filter_imu)">
+    <node pkg="imu_control" name="imu_calibrate" type="imu_calibrate.py" output="screen"/>
+  </group>
+  
+  <!--foxglove-->
+  <group if="$(arg launch_foxglove)">
+    <include file="$(find foxglove_bridge)/launch/foxglove_bridge.launch">
+      <arg name="port" value="8765" />
+    </include>
+  </group>
+
+
+
+  
+
+</launch>
+
+

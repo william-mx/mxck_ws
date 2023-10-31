@@ -1,0 +1,9 @@
+<launch>
+
+    <!--serial-->
+    <include file="$(find mxck_run)/launch/nucleo_run.launch" />
+
+    <node pkg="light_control" name="lights_example_node" type="lights_example_node.py" output="screen"/>
+    
+    
+</launch>

@@ -1,0 +1,73 @@
+# rc signal
+# move all joysticks on the remote control and watch the pwm values 
+# /veh_remote_control
+steering_min_pwm: 1120
+steering_mid_pwm: 1492
+steering_max_pwm: 1895
+
+throttle_min_pwm: 1000
+throttle_mid_pwm: 1500
+throttle_max_pwm: 1995
+
+mode_min_pwm: 1000
+mode_mid_pwm: 1500
+mode_max_pwm: 2000
+
+# vesc
+
+# servo value reaches from 0 to 1 (/commands/servo/position)
+# select the min and max value so that the steering does not block
+# select the mid value so that the vehicle drives a straight line
+servo_max: 0.9 
+servo_min: 0.1
+servo_mid: 0.502
+
+wheelbase: 0.36 # m
+
+# use the min and max servo position from above to drive a left and right circle
+# use rostopic pub /commands/servo/position {servo_max / servo_min}
+lr_rmin: 0.76 # measure the left radius [meter] (measured from center front axle)
+rr_rmin: 0.82 # measure the right radius [meter]
+
+# drive with constant erpm over a fixed distance and measure the time the car takes
+# rostopic pub -r 5 /commands/motor/speed {erpm} e.g. erpm = 4000
+# from this the speed is calculated speed (m/s) = distance (m) / time (s)
+# calculate speed_to_erpm_gain = erpm / speed
+speed_to_duty_gain: 0.25 # duty = speed_to_duty_gain x speed (m/s)
+
+# servo
+# the maximum steering angle is determined from the measured left and right radius and the wheelbase
+# see ackermann_to_vesc.py
+servo_rad_min: -0.442
+servo_rad_mid:  0
+servo_rad_max:  0.442 # rad
+
+# maximum speed m/s
+speed_min: -2.0 # backwards
+speed_mid:  0 #
+speed_max: 2.0 # forward
+
+# duty
+duty_min: -0.5 # backwards
+duty_mid:  0 #
+duty_max: 0.5 # forward
+
+# Similar to real vehicles, carkits cannot drive infinitely slow. 
+# That is why we set a minimum starting speed.
+# True sensorless commutation is possible only with motor speeds of 500-1000 rpm and up.
+speed_clip: 0.2 # the carkit starts with +/- ... m/s 
+
+# manual control
+
+rc_speed_axis: 1
+rc_steering_axis: 0
+rc_deadman_button: 0
+
+joy_speed_axis: 1
+joy_steering_axis: 3
+joy_deadman_button: 4 
+
+speed_deadzone: 0.001
+steer_deadzone: 0.001
+
+
