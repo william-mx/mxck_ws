@@ -6,7 +6,7 @@ xhost +local:docker
 
 # run ros docker container
 sudo docker run -it --rm \
---mount type=bind,source=/home/mxck/tmp2/mxck_base,target=/melodic_ws \
+--mount type=bind,source=/home/mxck/mxck_ws/mxck_base,target=/melodic_ws \
 --mount type=bind,source=/dev,target=/dev \
 --env="DISPLAY" \
 --env="QT_X11_NO_MITSHM=1" \
