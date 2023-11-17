@@ -18,6 +18,8 @@ sudo docker build -t mxck_base_melodic .
 ```
 
 Run docker image.
+The *roscore* is also started immediately when the Docker container is running.
+In *ros_entrypoint.sh* you can also configure that certain sensors or programs start automatically, for example the camera or foxglove.
 ```
 ./run_ros_docker.sh
 ```
