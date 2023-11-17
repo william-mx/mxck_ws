@@ -17,12 +17,26 @@ echo "sourcing $MELODIC_SH"
 source $VESC_SH
 echo "sourcing $VESC_SH"
 
-# setup mxck environment
-if test -f "$MXCK_SH"; then
-    source $MXCK_SH
-    echo "sourcing $MXCK_SH"
+# build mxck environment
+if test ! -f "$MXCK_SH"; then
+    catkin_make
 fi
 
+# setup mxck environment
+source $MXCK_SH
+echo "sourcing $MXCK_SH"
+
+if [ "$1" = "true" ];
+then
+  roslaunch mxck_run mxck_run.launch \
+  run_camera:=false \
+  run_lidar:=false \
+  run_micro:=false \
+  run_pdc:=false \
+  run_imu:=false \
+  run_foxglove:=false
+fi;
+    
 exec "$@"
 
 

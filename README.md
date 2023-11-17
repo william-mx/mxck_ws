@@ -22,12 +22,6 @@ Run docker image.
 ./run_ros_docker.sh
 ```
 
-Build the workspace.
-```
-catkin_make
-source devel/setup.bash
-```
-
 Open another terminal and connect to the docker container.
 ```
 ./add_ros_docker.sh

@@ -20,8 +20,9 @@ RUN git clone https://github.com/f1tenth/vesc.git /vesc_ws/src \
  && . /opt/ros/melodic/setup.sh \
  && catkin_make
  
-COPY ./ros_entrypoint.sh /ros_entrypoint.sh
-RUN echo 'source /ros_entrypoint.sh' >> /root/.bashrc
+COPY ./ros_entrypoint.sh /
+ENTRYPOINT ["./ros_entrypoint.sh"]
+CMD ["false"]
 
 WORKDIR ./melodic_ws
 
