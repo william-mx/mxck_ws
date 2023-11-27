@@ -1,4 +1,4 @@
-# MXCarkit ROS Workspace
+# MXCarkit ROS Perception
 
 The mxck_perception workspace is based on jetson-inference, which is provided by Nvidia and is the ideal platform for Deploying Deep Learning on NVIDIA Jetson devices. Have a look at their [repository](https://github.com/dusty-nv/jetson-inference), there are many good tutorials (e.g. how to run a custom object detection on the jetson).
 
