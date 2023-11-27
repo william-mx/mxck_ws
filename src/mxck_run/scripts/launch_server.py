@@ -67,7 +67,7 @@ class LaunchServer():
 
         
 
-        if cmd == 'rosrun' or cmd == 'roslaunch':
+        if cmd in ['rosrun', 'roslaunch', 'rosbag']:
             self.execute(cmd, pkg, fname, args)
         elif cmd == 'kill':
             self.terminate(pid)

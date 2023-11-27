@@ -1,0 +1,12 @@
+<launch>
+
+  	
+  <arg name="arguments" default="-o $(find mxck_run)/bagfiles/record --duration=5 /camera/color/image_raw" />
+
+  <node name="record" pkg="rosbag" type="record" args="$(arg arguments)" output="screen"/>
+
+  
+
+</launch>
+
+
