@@ -26,7 +26,7 @@ source $MXCK_SH
 # run command
 if [ "$1" = "true" ];
 then
-  roscore
+  roslaunch mxck_run run_server:=true run_foxglove:=true
 else
   bash
 fi;
