@@ -11,11 +11,9 @@ MXCK_SH=/melodic_ws/devel/setup.bash
 
 # setup ros environment
 source $MELODIC_SH
-echo "sourcing $MELODIC_SH"
 
 # setup vesc environment
 source $VESC_SH
-echo "sourcing $VESC_SH"
 
 # build mxck environment
 if test ! -f "$MXCK_SH"; then
@@ -24,8 +22,16 @@ fi
 
 # setup mxck environment
 source $MXCK_SH
-echo "sourcing $MXCK_SH"
+
+# run command
+if [ "$1" = "true" ];
+then
+  roscore
+else
+  bash
+fi;
     
+
 exec "$@"
 
 
