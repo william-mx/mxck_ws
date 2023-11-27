@@ -13,7 +13,11 @@
 	<arg name="joy_port" default="/dev/input/js0" />
 	<arg name="vesc_port" default="/dev/vesc" />
   	
- 	
+ 	<!--vesc-->
+    	<include file="$(find vesc_driver)/launch/vesc_driver_node.launch" >
+      		<arg name="port" value="$(arg vesc_port)" />
+    	</include>
+    
  	<!--rc control-->
 	<group if="$(eval arg('control_type') == 'rc')">
 		<node name="rc_to_joy" pkg="vehicle_control" type="rc_to_joy.py"  output="screen" required = "true"/>
