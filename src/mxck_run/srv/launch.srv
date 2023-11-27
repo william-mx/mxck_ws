@@ -1,4 +1,0 @@
-string command  # run or kill
-string node
----
-bool successful # true or false
