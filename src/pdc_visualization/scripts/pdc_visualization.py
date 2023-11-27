@@ -20,8 +20,7 @@ class PDCvisualization:
     self.output_types = [ 'to_video', # save result as video
                           'publish',  # publish result as image message
                           'live']     # show result live
-
-
+    
     # get param, optionally pass in a default value to use if the parameter is not set
     output_type = rospy.get_param("pdc_output_type", 'live')
 	
@@ -39,7 +38,7 @@ class PDCvisualization:
     base_dir = r.get_path('pdc_visualization')
 
     # load pdc visualization image
-    img_fpath = base_dir + '/images/pdc_visualization_template.tiff'
+    img_fpath = base_dir + '/images/pdc_visualization_template_small.tiff'
 
     if not os.path.exists(img_fpath):
         rospy.logerr("Image is not available at %s.", img_fpath)
@@ -53,7 +52,7 @@ class PDCvisualization:
     # save result as video
     results_dir = base_dir + '/results'
     
-    if not os.path.exists(results_dir):
+    if not os.path.exists(results_dir) and self.to_video:
       os.mkdir(results_dir)
     
     self.fps = 50 # check frquency with rostopic hz /uss_values
@@ -66,7 +65,7 @@ class PDCvisualization:
       cv2.namedWindow("PDC Visualization", cv2.WND_PROP_FULLSCREEN)
 
     # load pixel coordinates for each patch; shape (num_sensors x num_sections)
-    coor_fpath = base_dir + '/images/patch_px_coords.pkl'
+    coor_fpath = base_dir + '/images/patch_px_coords_small.pkl'
 
     if not os.path.exists(img_fpath):
         rospy.logerr("Numpy pixel coordinates not available at %s.", coor_fpath)
