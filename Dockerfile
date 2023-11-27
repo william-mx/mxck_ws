@@ -7,7 +7,9 @@ RUN apt update \
     ros-$ROS_DISTRO-ackermann-msgs \
     ros-$ROS_DISTRO-foxglove-msgs \
     ros-$ROS_DISTRO-vision-opencv \
-    ros-$ROS_DISTRO-rqt-reconfigure
+    ros-$ROS_DISTRO-rqt-reconfigure \
+    ros-$ROS_DISTRO-rqt \
+    ros-$ROS_DISTRO-rqt-common-plugins 
 
 RUN apt update \
  && python3 -m pip install \

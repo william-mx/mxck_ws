@@ -7,3 +7,7 @@ src/CMakeLists.txt
 src/object_detection/models/vdi_adc/*
 !src/object_detection/models/vdi_adc/ssd-mobilenet.onnx
 !src/object_detection/models/vdi_adc/labels.txt
+
+# ignore bagfiles
+src/lane_detection/bagfiles/*
+!src/lane_detection/bagfiles/download_link.txt
