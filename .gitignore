@@ -1,3 +1,7 @@
 /devel
 /build
 .catkin_workspace
+
+# ignore bagfiles
+src/mxck_run/bagfiles/*
+!src/mxck_run/bagfiles/.gitkeep
