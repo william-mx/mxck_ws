@@ -1,0 +1,7 @@
+string command # rosrun, roslaunch
+string package
+string filename # file.launch, file.py
+string args # run_lidar:=true
+uint32 pid # process pid
+---
+string[] pid

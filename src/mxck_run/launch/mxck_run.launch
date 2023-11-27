@@ -1,0 +1,87 @@
+<launch>
+
+  	
+  <arg name="run_camera" default="false" />
+  <arg name="run_motors" default="false"/> <!--manual control-->
+  <arg name="run_lidar" default="false" /> 
+  <arg name="run_micro" default="false" /> <!--microcontroller: us, lights, imu, rc-->
+  <arg name="run_pdc" default="false" /> <!--pdc visualization-->
+  <arg name="run_imu" default="false" /> <!--calibrate and filter imu data-->
+  <arg name="run_foxglove" default="false" /> <!--stream data using foxglove-->
+  <arg name="run_lights" default="false" /> <!--turn lights on-->
+
+
+   <!--ports-->
+  <arg name="joy_port" value="/dev/input/js0" />
+  <arg name="vesc_port" value="/dev/vesc" />
+  <arg name="stm_port" value="/dev/stm32_nucleo" />
+  <arg name="stm_baud" value="921600" />
+
+  <!--control type-->
+  <arg name="control_type" default="rc" /> <!--rc or joy-->
+
+  <!--camera-->
+  <group if="$(arg run_camera)">
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+      <arg name="color_width" value="320"/> <!--static params-->
+      <arg name="color_height" value="180"/>
+      <arg name="color_fps" value="6"/>
+      <arg name="enable_confidence" value="False"/>
+      <arg name="enable_depth" value="False"/>
+    </include>
+  </group>
+
+
+  <!--lidar-->
+  <group if="$(arg run_lidar)">
+    <include file="$(find rplidar_ros)/launch/rplidar.launch" />
+  </group>
+
+
+  <!--vesc-->
+  <group if="$(arg run_motors)">
+    <include file="$(find vehicle_control)/launch/manual_control.launch">
+      <arg name="vesc_port" value="$(arg vesc_port)" />
+      <arg name="joy_port" value="$(arg joy_port)"/>
+      <arg name="control_type" value="$(arg control_type)"/> <!--rc or joy-->
+    </include>
+  </group>
+
+
+  <!--microcontroller-->
+  <group if="$(arg run_micro)">
+    <include file="$(find mxck_run)/launch/micro_run.launch" >
+      <arg name="stm_port" value="$(arg stm_port)"/>
+    </include>
+  </group>
+
+
+  <!--pdc visualization-->
+  <group if="$(arg run_pdc)">
+    <include file="$(find pdc_visualization)/launch/pdc_visualization.launch" />
+  </group>
+
+
+  <!--imu-->
+  <group if="$(arg run_imu)">
+    <node pkg="imu_control" name="imu_calibrate" type="imu_calibrate.py" output="screen" respawn="true"/>
+  </group>
+  
+  <!--lights-->
+  <group if="$(arg run_lights)">
+    <node pkg="light_control" name="switch_lights_on" type="switch_lights_on.py" output="screen" respawn="true"/>
+  </group>
+
+  <!--foxglove-->
+  <group if="$(arg run_foxglove)">
+    <include file="$(find foxglove_bridge)/launch/foxglove_bridge.launch">
+      <arg name="port" value="8765" />
+      <arg name="send_buffer_limit" value="10000000" />
+      <arg name="topic_whitelist" value="['/imu_filtered', '/imu_calibrated', '/pdc_visualization', '/camera/color/image_raw', '/bboxs', '/scan', '/timestamp']" />
+    </include>
+  </group>
+
+
+</launch>
+
+
