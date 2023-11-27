@@ -21,7 +21,7 @@ git clone -b mxck_perception https://github.com/william-mx/mxck_ws.git ~/mxck_ws
 
 Make shell scripts and python files executable.
 ```
-cd ~/mxck_ws/mxck_base
+cd ~/mxck_ws/mxck_perception
 sudo find . -type f -name '*.py' -o -name '*.sh' -exec chmod +x {} \;
 sudo find . -type f -name '*.py' -exec dos2unix {} \;
 ```
