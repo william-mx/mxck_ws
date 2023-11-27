@@ -77,7 +77,7 @@
     <include file="$(find foxglove_bridge)/launch/foxglove_bridge.launch">
       <arg name="port" value="8765" />
       <arg name="send_buffer_limit" value="10000000" />
-      <arg name="topic_whitelist" value="['/imu_filtered', '/imu_calibrated', '/pdc_visualization', '/camera/color/image_raw', '/bboxs', '/scan', '/timestamp']" />
+      <arg name="topic_whitelist" value="['/imu_filtered', '/imu_calibrated', '/pdc_visualization', '/camera/color/image_raw', '/bboxs', '/scan']" />
     </include>
   </group>
 
