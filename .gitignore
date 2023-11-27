@@ -1,0 +1,12 @@
+devel/
+build/
+
+.catkin_workspace
+
+
+# ignore models
+src/object_detection/models/vdi_adc/
+
+# But not these files...
+!src/object_detection/models/vdi_adc/labels.txt
+!src/object_detection/models/vdi_adc/ssd-mobilenet.onnx
