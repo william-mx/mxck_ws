@@ -5,7 +5,7 @@ build/
 
 
 # ignore models
-src/object_detection/models/vdi_adc/
+#src/object_detection/models/vdi_adc/
 
 # But not these files...
 !src/object_detection/models/vdi_adc/labels.txt

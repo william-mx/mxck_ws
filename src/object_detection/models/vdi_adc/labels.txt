@@ -1,0 +1,12 @@
+BACKGROUND
+cross_parking
+no_overtaking
+overtaking
+parallel_parking
+pit_in
+pit_out
+traffic_light_green
+traffic_light_off
+traffic_light_red
+traffic_light_red_yellow
+traffic_light_yellow
