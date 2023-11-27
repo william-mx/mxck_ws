@@ -1,0 +1,9 @@
+<launch>
+
+   	<!--object detection-->
+  	<node pkg="object_detection" type="run_ssd_mobilenet.py" name="ssd_mobilenet" required = "true"  output = "screen" />
+
+</launch>
+
+
+
