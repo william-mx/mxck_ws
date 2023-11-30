@@ -25,7 +25,7 @@ class RCJoystick:
       self.rc_sub = rospy.Subscriber('/veh_remote_ctrl', UInt16MultiArray, self.callback) # 20hz
 
       # publish joy message
-      self.rc_pub = rospy.Publisher('/joy', Joy, queue_size=2) # react within a tenth of a second (20hz, 2)
+      self.rc_pub = rospy.Publisher('/rc/joy', Joy, queue_size=1) 
 
    def parse_pwm(self, pwm_signal):
 
@@ -73,7 +73,11 @@ class RCJoystick:
       self.joy_msg.header.stamp = rospy.Time.now()
       self.joy_msg.header.seq += 1
 
-      self.rc_pub.publish(self.joy_msg)
+      try:
+         self.rc_pub.publish(self.joy_msg)
+      except Exception as e:
+         print(e)
+         
 
    def load_params(self):
       

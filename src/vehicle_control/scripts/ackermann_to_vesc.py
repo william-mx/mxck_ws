@@ -2,6 +2,7 @@
 
 import rospy
 from ackermann_msgs.msg import AckermannDriveStamped
+from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64
 from math import atan
 import numpy as np
@@ -12,6 +13,9 @@ class AckermannToVesc:
 
       # load parameters
       self.load_params()
+      
+      # mode: manual, autonomous, deadman
+      self.mode = self.dead_val
 
       # init
       self.init_mapping_function()
@@ -21,13 +25,21 @@ class AckermannToVesc:
       self.servo_msg = Float64()
 
       # subscribe to pwm signals from rc receiver
-      self.rc_sub = rospy.Subscriber('/ackermann_cmd', AckermannDriveStamped, self.callback)
+      self.rc_sub = rospy.Subscriber('/rc/ackermann_cmd', AckermannDriveStamped, lambda x: self.callback(x, self.manu_val))
+      self.ad_sub = rospy.Subscriber('/autonomous/ackermann_cmd', AckermannDriveStamped,  lambda x: self.callback(x, self.auto_val))
+      self.joy_sub = rospy.Subscriber('/rc/joy', Joy, self.deadman)
 
       # publish commands to vesc driver
-      self.duty_pub = rospy.Publisher('/commands/motor/duty_cycle', Float64, queue_size=2) 
-      self.servo_pub = rospy.Publisher('/commands/servo/position', Float64, queue_size=2) 
+      self.duty_pub = rospy.Publisher('/commands/motor/duty_cycle', Float64, queue_size=1) 
+      self.servo_pub = rospy.Publisher('/commands/servo/position', Float64, queue_size=1)
 
-   def callback(self, ackermann_msg):
+   def deadman(self, msg):
+      self.mode = msg.buttons[self.dead_btn]
+      
+   def callback(self, ackermann_msg, target):
+      
+      if self.mode != target: return
+      
       steer_rad = ackermann_msg.drive.steering_angle
       speed = ackermann_msg.drive.speed
 
@@ -65,6 +77,10 @@ class AckermannToVesc:
       self.rr_rmin = rospy.get_param("/rr_rmin")
       self.speed_to_duty_gain = rospy.get_param("/speed_to_duty_gain")
       self.speed_clip = rospy.get_param("/speed_clip")
+      self.dead_val = rospy.get_param("/rc_dead_value") # deadman switch
+      self.auto_val = rospy.get_param("/rc_auto_value") # drive autonomously
+      self.manu_val = rospy.get_param("/rc_manu_value") # drive manually
+      self.dead_btn = rospy.get_param("/rc_deadman_button")
       
       rospy.loginfo("The starting speed is set to +/- %.1f m/s" % self.speed_clip)
 

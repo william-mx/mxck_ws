@@ -28,20 +28,15 @@ class JoyControl:
         self.ackMsg = AckermannDriveStamped()
 
         # publish ackermann messages to VESC
-        self.ackermann_pub = rospy.Publisher('/ackermann_cmd', AckermannDriveStamped, queue_size=1) 
+        self.ackermann_pub = rospy.Publisher('/rc/ackermann_cmd', AckermannDriveStamped, queue_size=1) 
 
         # subscribe to joy
-        self.joy_sub = rospy.Subscriber('/joy', Joy, self.callback)
+        self.joy_sub = rospy.Subscriber('/rc/joy', Joy, self.callback)
 
     def callback(self, msg):
 
         # deadman button
-        if msg.buttons[self.dead_btn] == 0:
-
-            steer_rad = self.servo_mid
-            speed_mps = self.speed_mid
-
-        else:
+        if msg.buttons[self.dead_btn] == self.manu_val:
 
             # steering
             steer_val = msg.axes[self.steer_ax] * self.steer_scale
@@ -64,11 +59,11 @@ class JoyControl:
                 speed_mps = self.speed_mid
 
 
-        self.ackMsg.header.stamp = rospy.Time.now()
-        self.ackMsg.drive.steering_angle = steer_rad
-        self.ackMsg.drive.speed = speed_mps
+            self.ackMsg.header.stamp = rospy.Time.now()
+            self.ackMsg.drive.steering_angle = steer_rad
+            self.ackMsg.drive.speed = speed_mps
 
-        self.ackermann_pub.publish(self.ackMsg)
+            self.ackermann_pub.publish(self.ackMsg)
 
 
     def load_params(self):
@@ -79,6 +74,7 @@ class JoyControl:
             self.steer_ax = rospy.get_param("/rc_steering_axis")
             self.speed_ax = rospy.get_param("/rc_speed_axis")
             self.dead_btn = rospy.get_param("/rc_deadman_button")
+            self.manu_val = rospy.get_param("/rc_manu_value")
             self.steer_scale = 1
 
         elif self.control_type == 'joy':

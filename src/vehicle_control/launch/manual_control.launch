@@ -14,9 +14,9 @@
 	<arg name="vesc_port" default="/dev/vesc" />
   	
  	<!--vesc-->
-    	<include file="$(find vesc_driver)/launch/vesc_driver_node.launch" >
-      		<arg name="port" value="$(arg vesc_port)" />
-    	</include>
+	<include file="$(find vesc_driver)/launch/vesc_driver_node.launch" >
+		<arg name="port" value="$(arg vesc_port)" />
+	</include>
     
  	<!--rc control-->
 	<group if="$(eval arg('control_type') == 'rc')">
@@ -26,7 +26,7 @@
 	
 	<!--joystick-->
 	<group if="$(eval arg('control_type') == 'joy')">
-		<node pkg="joy" type="joy_node" name="joy_node" output="screen">
+		<node pkg="joy" type="joy_node" name="joy_node" output="screen" ns="gamepad">
 			<param name="dev" value="$(arg joy_port)" />
 		</node>
 	</group>
