@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import rospkg
 import rospy
+import sys
 import os
 
 from jetson_inference import detectNet
@@ -20,6 +21,12 @@ from geometry_msgs.msg import Point
 import matplotlib.pyplot as plt
 
 import pyrealsense2 as rs
+
+# add the file path of the package so that interpeter can find the module
+r = rospkg.RosPack()
+sys.path.append(os.path.join(r.get_path('lane_detection'), 'include'))
+
+from rs_stream import RGBstream
 
 def publish(im, detections):
   global id2color, bboxs, pub_markers, pub_image, bridge
@@ -58,33 +65,12 @@ def publish(im, detections):
     )
   
   pub_markers.publish(bboxs)
-        
+
+    
 if __name__ == '__main__':
   
   rospy.init_node('ssd_mobilenet', anonymous=True)     
-
-  # Configure depth and color streams
-  pipeline = rs.pipeline()
-  config = rs.config()
-
-  # Get device product line for setting a supporting resolution
-  pipeline_wrapper = rs.pipeline_wrapper(pipeline)
-  pipeline_profile = config.resolve(pipeline_wrapper)
-  device = pipeline_profile.get_device()
-  device_product_line = str(device.get_info(rs.camera_info.product_line))
-
-  # check for rgb sensor
-  found_rgb = False
-  for s in device.sensors:
-    if s.get_info(rs.camera_info.name) == 'RGB Camera':
-      found_rgb = True
-      break
-  if not found_rgb:
-    raise Exception("Realsense D435i RGB Camera Not found!")
-    
-  w, h, fps = 640, 480, 15
-  config.enable_stream(rs.stream.color, w, h, rs.format.bgr8, fps)
-          
+        
   # build model
   r = rospkg.RosPack()
   model_dir = r.get_path('object_detection') + '/models/vdi_adc'
@@ -130,19 +116,13 @@ if __name__ == '__main__':
   bridge = CvBridge()
 
   # Start streaming
-  pipeline.start(config)
+  cam_stream = RGBstream(width=640, height=480, fps=15)
   
   try:
     while not rospy.is_shutdown():
 
       # Wait for a coherent pair of frames: depth and color
-      frames = pipeline.wait_for_frames()
-      color_frame = frames.get_color_frame()
-      if not color_frame:
-        continue
-
-      # Convert images to numpy arrays
-      color_image = np.asanyarray(color_frame.get_data())
+      color_image = cam_stream.wait_for_image()
 
       cuda_img = cudaFromNumpy(color_image)
       detections = net.Detect(cuda_img)
@@ -152,7 +132,7 @@ if __name__ == '__main__':
   finally:
 
     # Stop streaming
-    pipeline.stop()
+    cam_stream.stop()
         
 
 

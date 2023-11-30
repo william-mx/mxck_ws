@@ -1,6 +1,6 @@
 <launch>
   
-  <arg name="play_bagfile" value="true" />
+  <arg name="play_bagfile" default="false" />
   
   <!--play bagfile-->
   <arg name="file_path" default="$(find lane_detection)/bagfiles/left_round.bag" />

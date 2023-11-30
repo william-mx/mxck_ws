@@ -14,22 +14,29 @@ class PIDcontrol():
         self.offset_sub = rospy.Subscriber('/offset', Float32, self.callback) # 20hz
 
         # publish ackermann
-        self.ackermann_pub = rospy.Publisher('/ackermann_cmd', AckermannDriveStamped, queue_size=1) 
+        self.ackermann_pub = rospy.Publisher('/autonomous/ackermann_cmd', AckermannDriveStamped, queue_size=1) 
 
         # define messages
         self.ackMsg = AckermannDriveStamped()
         
         # max steering angle [deg]
-        self.max_angle = 20.0
+        self.max_angle = 0.3
         self.t_previous = rospy.Time.now()
         self.e_previous = 0
         self.P, self.I, self.D = 0, 0, 0
+        
+        self.speed_mps, self.max_angle = 0, 0
         
     def update_params(self, config, level):
         self.kp = config['kp']
         self.ki = config['ki']
         self.kd = config['kd']
-        rospy.loginfo("Updated kp: %.2f, ki: %.2f, kd: %.2f" %(self.kp, self.ki, self.kd))
+        self.speed_mps = config['speed']
+        self.max_angle = config['max_angle']
+        
+        rospy.loginfo("Updated kp: %.2f, ki: %.2f, kd: %.2f, speed: %.2f m/s, max_angle: %.2f rad" \
+            %(self.kp, self.ki, self.kd, self.speed_mps, self.max_angle))
+        
         return config
     
     def callback(self, data):
@@ -41,15 +48,20 @@ class PIDcontrol():
         self.P = error
         self.I = self.I + error * dt
         self.D = de / dt
-        self.output = self.kp * self.P + self.ki * self.I + self.kd * self.D
+        steer_rad = self.kp * self.P + self.ki * self.I + self.kd * self.D
         
         # clip output to +/- max_angle
-        self.output = max(-self.max_angle, min(self.output, self.max_angle))
-        rospy.loginfo("output: %.2f" %self.output)
+        steer_rad = max(-self.max_angle, min(steer_rad, self.max_angle))
+        rospy.loginfo("steering angle [rad]: %.2f, offset px: %.2f" %(steer_rad, error))
         
         self.t_previous = t
         self.e_previous = error
 
+        self.ackMsg.header.stamp = rospy.Time.now()
+        self.ackMsg.drive.steering_angle = steer_rad
+        self.ackMsg.drive.speed = self.speed_mps
+
+        self.ackermann_pub.publish(self.ackMsg)
 
 if __name__ == "__main__":
     rospy.init_node("pid", anonymous = False)
