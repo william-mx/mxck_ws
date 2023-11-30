@@ -1,6 +1,7 @@
 /devel
 /build
 .catkin_workspace
+*pyc
 
 # ignore bagfiles
 src/mxck_run/bagfiles/*
