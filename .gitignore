@@ -2,6 +2,7 @@ devel/
 build/
 src/CMakeLists.txt
 .catkin_workspace
+*.pyc
 
 # ignore models
 src/object_detection/models/vdi_adc/*
