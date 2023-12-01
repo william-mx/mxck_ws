@@ -163,6 +163,7 @@ catkin_install_python(PROGRAMS
   scripts/joy_to_ackermann.py
   scripts/rc_to_joy.py
   scripts/ackermann_to_vesc.py
+  scripts/rc_safety_check.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

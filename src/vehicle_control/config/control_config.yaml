@@ -1,13 +1,13 @@
 # rc signal
 # move all joysticks on the remote control and watch the pwm values 
 # /veh_remote_control
-steering_min_pwm: 1120
+steering_min_pwm: 1100
 steering_mid_pwm: 1440
-steering_max_pwm: 1895
+steering_max_pwm: 1900
 
 throttle_min_pwm: 1000
-throttle_mid_pwm: 1326
-throttle_max_pwm: 1995
+throttle_mid_pwm: 1500
+throttle_max_pwm: 2000
 
 mode_min_pwm: 1000
 mode_mid_pwm: 1500
@@ -55,7 +55,7 @@ duty_max: 0.5 # forward
 # Similar to real vehicles, carkits cannot drive infinitely slow. 
 # That is why we set a minimum starting speed.
 # True sensorless commutation is possible only with motor speeds of 500-1000 rpm and up.
-speed_clip: 0.1 # the carkit starts with +/- ... m/s 
+speed_clip: 0.08 # the carkit starts with +/- ... m/s 
 
 # manual control
 

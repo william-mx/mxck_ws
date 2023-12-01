@@ -14,10 +14,10 @@
 	<arg name="vesc_port" default="/dev/vesc" />
   	
  	<!--vesc-->
-	<include file="$(find vesc_driver)/launch/vesc_driver_node.launch" >
-		<arg name="port" value="$(arg vesc_port)" />
-	</include>
-    
+  	<node pkg="vesc_driver" type="vesc_driver_node" name="vesc_driver_node" output="screen" respawn="true">
+    	<param name="port" value="$(arg vesc_port)" />
+  	</node>
+
  	<!--rc control-->
 	<group if="$(eval arg('control_type') == 'rc')">
 		<node name="rc_to_joy" pkg="vehicle_control" type="rc_to_joy.py"  output="screen" required = "true"/>
@@ -26,7 +26,7 @@
 	
 	<!--joystick-->
 	<group if="$(eval arg('control_type') == 'joy')">
-		<node pkg="joy" type="joy_node" name="joy_node" output="screen" ns="gamepad">
+		<node pkg="joy" type="joy_node" name="joy_node" output="screen">
 			<param name="dev" value="$(arg joy_port)" />
 		</node>
 	</group>
