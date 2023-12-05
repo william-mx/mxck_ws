@@ -146,11 +146,11 @@ class ThreadedRealsenseImageServer(socketserver.ThreadingMixIn, socketserver.TCP
 if __name__ == "__main__":
     rospy.init_node('realsense_image_publisher', anonymous=True)
     
-    fps = rospy.get_param("/rs_stream/fps", 30)
-    width = rospy.get_param("/rs_stream/fps", 640)
-    height = rospy.get_param("/rs_stream/fps", 360)
-    port = rospy.get_param("/rs_stream/port", 9999)
-    streaming_mode = rospy.get_param("/rs_stream/mode", 'rs_stream')
+    fps = rospy.get_param("/rs_server/fps", 30)
+    width = rospy.get_param("/rs_server/width", 640)
+    height = rospy.get_param("/rs_server/height", 360)
+    port = rospy.get_param("/rs_server/port", 9999)
+    streaming_mode = rospy.get_param("/rs_server/mode", 'rs_stream')
 
     valid_sizes = [(1920,1080), (1280,720), (960,540), (848,480), (640,480), \
                    (640,360), (424,240), (320,240), (320,180)]

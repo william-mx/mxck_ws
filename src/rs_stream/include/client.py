@@ -5,12 +5,12 @@ import cv2
 import numpy as np
 
 class ImageReceiver:
-    def __init__(self, host='localhost', port=9999):
-        self.host = host
+    def __init__(self, host, port, callback_fn):
+        self.host = host 
         self.port = port
         self.client_socket = None
+        self.callback_fn = callback_fn
 
-    def connect_to_server(self):
         # Create a socket and connect to the server
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.host, self.port))
@@ -37,20 +37,16 @@ class ImageReceiver:
                 # Deserialize the data to a numpy array
                 frame = pickle.loads(data)
 
-                # Display the received image using OpenCV
-                # cv2.imshow('Received Image', frame)
-                # cv2.waitKey(1)  # Adjust the delay as needed for display responsiveness
-
                 data = b''  # Reset data buffer
+                
+                self.callback_fn(frame)
 
         except KeyboardInterrupt:
             pass
         finally:
-            # Close the socket
             self.client_socket.close()
-            # cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
-    receiver = ImageReceiver()
-    receiver.connect_to_server()
+    receiver = ImageReceiver('localhost', 9999, lambda x: print(x.shape))
     receiver.receive_frames()

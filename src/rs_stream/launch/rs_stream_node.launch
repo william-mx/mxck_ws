@@ -1,0 +1,18 @@
+<launch>
+
+    <arg name="fps" default="30"/>
+    <arg name="width" default="424"/>
+    <arg name="height" default="240"/>
+    <arg name="port" default="9999"/>
+    <arg name="mode" default="ros_stream"/>
+
+    <!-- RS stream -->
+    <node pkg="rs_stream" type="rs_server.py" name="rs_server" output="screen" respawn="true">
+        <param name="fps" value="$(arg fps)"/>
+        <param name="width" value="$(arg width)"/>
+        <param name="height" value="$(arg height)"/>
+        <param name="port" value="$(arg port)"/>
+        <param name="mode" value="$(arg mode)"/>
+    </node>
+</launch>
+
