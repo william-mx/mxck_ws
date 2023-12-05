@@ -1,0 +1,46 @@
+<launch>
+
+  <arg name="run_ssd" default="false" />
+  <arg name="run_rs" default="false"/> <!--stream data from realsense camera-->
+  <arg name="run_lane" default="false" /> 
+  <arg name="run_pid" default="false" />
+  <arg name="run_reconfigure" default="false" /> <!--rqt dynamic reconfigure-->
+
+  <!-- realsense streaming mode -->
+  <arg name="stream_mode" default="ros_stream" /> <!-- ros_stream or rs_stream -->
+
+  <!--run_rs-->
+  <group if="$(arg run_rs)">
+    <include file="$(find rs_stream)/launch/rs_stream_node.launch" >
+      <arg name="fps" default="30"/>
+      <arg name="width" default="424"/>
+      <arg name="height" default="240"/>
+      <arg name="port" default="9999"/>
+      <arg name="mode" default="$(arg stream_mode)"/>
+    </include>
+  </group>
+
+  <!--ssd object detection-->
+  <group if="$(arg run_ssd)">
+    <include file="$(find object_detection)/launch/ssd_mobilenet.launch" />
+  </group>
+
+  <!--lane detection-->
+  <group if="$(arg run_lane)">
+    <include file="$(find lane_detection)/launch/simple_lane_detection.launch" />
+  </group>
+
+
+  <!--pid controller-->
+  <group if="$(arg run_pid)">
+    <include file="$(find pid_control)/launch/pid_control_node.launch" />
+  </group>
+
+  <!-- rqt dynamic reconfigure -->
+  <group if="$(arg run_reconfigure)">
+    <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui"  args="-s reconfigure" />
+  </group>
+
+</launch>
+
+

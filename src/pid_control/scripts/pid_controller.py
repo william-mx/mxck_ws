@@ -20,7 +20,6 @@ class PIDcontrol():
         self.ackMsg = AckermannDriveStamped()
         
         # max steering angle [deg]
-        self.max_angle = 0.3
         self.t_previous = rospy.Time.now()
         self.e_previous = 0
         self.P, self.I, self.D = 0, 0, 0
@@ -44,7 +43,7 @@ class PIDcontrol():
         
         t = rospy.Time.now()
         dt = (t - self.t_previous).to_sec()
-        de = self.e_previous - error
+        de = self.e_previous - error # 
         self.P = error
         self.I = self.I + error * dt
         self.D = de / dt

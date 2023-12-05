@@ -1,6 +1,6 @@
 <launch>
-
-  <!--lane detection-->
+  
+  <!--pid controller-->
   <node pkg="pid_control" type="pid_controller.py" name="pid_controller" required = "true" output = "screen" />
   
 </launch>

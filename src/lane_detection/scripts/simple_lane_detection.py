@@ -14,22 +14,19 @@ from lane_detection.cfg import lane_detectionConfig
 
 # add the file path of the package so that interpeter can find the module
 r = rospkg.RosPack()
-sys.path.append(os.path.join(r.get_path('lane_detection'), 'include'))
+sys.path.append(os.path.join(r.get_path('rs_stream'), 'include'))
 
-from rs_stream import RGBstream
+from client import ImageReceiver
 
 class SimpleLaneDetection:
 
-  def __init__(self, rs_stream = False, live = False):
+  def __init__(self, mode = 'ros_stream', port=9999):
 
     # message offset from center in pixels
     self.offMsg = Float32()
 
     self.bridge = CvBridge()
     
-    # live visualization
-    self.live = live
-
     # publish offset from center
     self.pub_offset = rospy.Publisher('/offset', Float32, queue_size=1)
     
@@ -43,14 +40,15 @@ class SimpleLaneDetection:
     # launch dynamic reconfig server
     self.srv = Server(lane_detectionConfig, self.update_params)
 
-    if rs_stream:
-      # stream images using pyrealsense2
-      self.cam_stream = RGBstream(width=1280, height=720, fps=15)
-      self.start_streaming()
-    else:
-      # subscribe to camera message using realsense2_camera node 
+    if mode == 'ros_stream':
+      # Subscribe to camera message using realsense2_camera node
       self.image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.callback)
-      
+    elif mode == 'rs_stream':
+      receiver = ImageReceiver('localhost', port, self.run_detection)
+      receiver.receive_frames()
+
+    while not rospy.is_shutdown():
+        pass
     
   def update_params(self, config, level):
       self.ymin = config['ymin']
@@ -154,9 +152,6 @@ class SimpleLaneDetection:
     
     self.publish_viz(im_out)
     
-    if self.live:
-      cv2.imshow("Result", im_out)
-      cv2.waitKey(3) # milliseconds 
 
     ''' Caluculate offset '''
        
@@ -164,7 +159,7 @@ class SimpleLaneDetection:
       return # no lines detected
     
     if max_r > self.peak_min and max_l > self.peak_min:
-      lane_cx = x_left + self.lane_w // 2 # center
+      lane_cx = (x_left + x_right) // 2 # center
     elif max_r > self.peak_min and not self.lane_w is None:
       lane_cx = x_right -  self.lane_w // 2
     elif max_l > self.peak_min and not self.lane_w is None:
@@ -176,25 +171,9 @@ class SimpleLaneDetection:
       self.offMsg.data = offset
       self.pub_offset.publish(self.offMsg)
     except Exception as es:
-      print(e)
+      print(es)
 
   
-  def start_streaming(self):
-
-    try:
-      while not rospy.is_shutdown():
-        
-        if not self.parameters_set: continue
-        
-        # Wait for RGB image
-        image = self.cam_stream.wait_for_image()
-        self.run_detection(image)
-
-    finally:
-
-      # Stop streaming
-      self.cam_stream.stop()
-    
   def callback(self, data):
     if not self.parameters_set: return
     
@@ -209,12 +188,14 @@ class SimpleLaneDetection:
 if __name__ == '__main__':
   rospy.init_node('lane_detection', anonymous=True)
 
-  sim = SimpleLaneDetection(rs_stream = False, live = False)
+  port = rospy.get_param("/rs_server/port", 9999)
+  mode = rospy.get_param("/rs_server/mode", 'ros_stream')
+    
+  sim = SimpleLaneDetection(mode, port)
 
   try:
     rospy.spin()
   except KeyboardInterrupt:
     print("Shutting down")
   
-  if sim.live:
-    cv2.destroyAllWindows()
+

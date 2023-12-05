@@ -53,7 +53,7 @@ class SSDMobileNet:
 
         if mode == 'ros_stream':
           # Subscribe to camera message using realsense2_camera node
-          image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.callback)
+          self.image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.callback)
         elif mode == 'rs_stream':
           receiver = ImageReceiver('localhost', port, self.run_detection)
           receiver.receive_frames()
