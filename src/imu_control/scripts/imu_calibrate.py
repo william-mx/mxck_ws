@@ -56,7 +56,7 @@ class IMUcalib:
       self.imu_sub = rospy.Subscriber('/imu', Float32MultiArray, self.imu_callback) # 200hz
 
       # publish as imu sensor_msg
-      self.imu_pub = rospy.Publisher('/imu_calib', Imu, queue_size=200)
+      self.imu_pub = rospy.Publisher('/imu_calibrated', Imu, queue_size=200)
       self.filter_pub = rospy.Publisher('/imu_filtered', Imu, queue_size=200)
       
    def calibrate(self, msg):

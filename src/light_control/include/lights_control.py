@@ -6,9 +6,11 @@ from collections import OrderedDict
 
 class LightingControl:
 
-    def __init__(self):
+    def __init__(self, DEBUG = False):
 	
-	    # basic colors rgb
+        self.DEBUG = DEBUG # print status messages if DEBUG is True
+        
+	# basic colors rgb
         self.basic_colors = {
         'r': (255,   0,   0), # red
         'g': (  0, 255,   0), # green
@@ -59,13 +61,15 @@ class LightingControl:
 
     def update_lights(self):
         self.lights_msg.data = list(self.lights_config.values())
-        rospy.loginfo("Publishing %s to /lights.", self.lights_config.values())
         self.lights_pub.publish(self.lights_msg)
+        if self.DEBUG:
+            rospy.loginfo("Publishing %s to /lights.", self.lights_config.values())
 
     def update_status(self):
         self.status_msg.data = list(self.status_config.values())
-        rospy.loginfo("Publishing %s to /brake_lights.", self.status_config.values())
         self.status_pub.publish(self.status_msg)
+        if self.DEBUG:
+            rospy.loginfo("Publishing %s to /brake_lights.", self.status_config.values())
 
     def lights_off(self):
         # turn all lights off
@@ -112,7 +116,7 @@ class LightingControl:
         self.set_indic_pulse(ms_on, ms_off, cycles)
         self.update_lights()
 
-    def warning_lights_on(self, ms_on = 1000, ms_off = 1000, cycles = None):
+    def warning_lights_on(self, ms_on = 1000, ms_off = 1000, cycles = None):       
         self.lights_config['indicators'] = 3
         self.set_indic_pulse(ms_on, ms_off, cycles)
         self.update_lights()

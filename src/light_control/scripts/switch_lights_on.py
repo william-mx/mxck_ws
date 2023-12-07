@@ -27,17 +27,13 @@ if __name__ == '__main__':
     rospy.sleep(2)
 
     # turn warning lights on
-    lit.warning_lights_on(ms_on = 500, ms_off = 500, cycles = 6)
-    rospy.sleep(6)
+    lit.warning_lights_on(ms_on = 500, ms_off = 500, cycles = 12)
+    rospy.sleep(12)
     lit.lights_off()
 
     # push break
     lit.push_brake(duration_s = 3)
     rospy.sleep(2)
-
-    # turn all lights off
-    lit.lights_off()
-    rospy.sleep(2) 
 
 
     # switch different status led colors
@@ -45,7 +41,7 @@ if __name__ == '__main__':
     rospy.sleep(4)
     lit.set_status(c = 'g', ms_on = 500, ms_off = 500, cycles = 4)
     rospy.sleep(4)
-    lit.set_status(c = 'b', ms_on = 500, ms_off = 500, cycles = 4)
+    lit.set_status(c = 'p', ms_on = 500, ms_off = 500, cycles = 4)
     rospy.sleep(4)
     lit.set_status(c = 'm', ms_on = 500, ms_off = 500, cycles = 4)
     rospy.sleep(4)
@@ -53,6 +49,19 @@ if __name__ == '__main__':
     # turn all lights off
     lit.lights_off()
     rospy.sleep(2) # sleep for  seconds
+
+    # turn highbeam on
+    lit.headlights_on()
     
-    rospy.loginfo("lightes example finished")
+    # turn warning lights on
+    lit.warning_lights_on(ms_on = 500, ms_off = 500) # inf loop
+    
+    # turn all lights off
+    rospy.sleep(120)
+    lit.lights_off()
+    
+    while not rospy.is_shutdown(): pass
+    
+    rospy.loginfo("Light show finished...")
+    
 
