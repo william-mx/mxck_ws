@@ -10,18 +10,18 @@ class JointController:
 
 	def __init__(self):
 		self.ackermann_sub = rospy.Subscriber('/ackermann_cmd', AckermannDriveStamped, self.ackermann_callback, queue_size=1)
-		self.right_steer_pub = rospy.Publisher('/carbot/right_steer_position_controller/command', Float64, queue_size=1)
-		self.left_steer_pub = rospy.Publisher('/carbot/left_steer_position_controller/command', Float64, queue_size=1)
-		self.lf_wheel_pub = rospy.Publisher('/carbot/lf_wheel_velocity_controller/command', Float64, queue_size=1)
-		self.rf_wheel_pub = rospy.Publisher('/carbot/rf_wheel_velocity_controller/command', Float64, queue_size=1)
-		self.lr_wheel_pub = rospy.Publisher('/carbot/lr_wheel_velocity_controller/command', Float64, queue_size=1)
-		self.rr_wheel_pub = rospy.Publisher('/carbot/rr_wheel_velocity_controller/command', Float64, queue_size=1)
+		self.right_steer_pub = rospy.Publisher('/mxcarkit/right_steer_position_controller/command', Float64, queue_size=1)
+		self.left_steer_pub = rospy.Publisher('/mxcarkit/left_steer_position_controller/command', Float64, queue_size=1)
+		self.lf_wheel_pub = rospy.Publisher('/mxcarkit/lf_wheel_velocity_controller/command', Float64, queue_size=1)
+		self.rf_wheel_pub = rospy.Publisher('/mxcarkit/rf_wheel_velocity_controller/command', Float64, queue_size=1)
+		self.lr_wheel_pub = rospy.Publisher('/mxcarkit/lr_wheel_velocity_controller/command', Float64, queue_size=1)
+		self.rr_wheel_pub = rospy.Publisher('/mxcarkit/rr_wheel_velocity_controller/command', Float64, queue_size=1)
 		self.wheel_speed_msg = Float64()
 		self.steer_ang_left_msg = Float64()
 		self.steer_ang_right_msg = Float64()
-		self.r_dyn = 0.05
-		self.l_rad = 0.280
-		self.b_rad = 0.100
+		self.r_dyn = 0.0485
+		self.l_rad = 0.360
+		self.b_rad = 0.258
 		
 	def ackermann_callback(self, msg):
 		steer_ang = msg.drive.steering_angle
