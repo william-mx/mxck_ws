@@ -1,0 +1,9 @@
+<launch>
+
+<rosparam file="$(find mxcarkit_description)/launch/controller.yaml" command="load"/>
+<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/mxcarkit" args="right_steer_position_controller left_steer_position_controller lr_wheel_velocity_controller rr_wheel_velocity_controller rf_wheel_velocity_controller lf_wheel_velocity_controller joint_state_controller "/>
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+  <remap from="/joint_states" to="/mxcarkit/joint_states"/>
+</node>
+
+</launch>

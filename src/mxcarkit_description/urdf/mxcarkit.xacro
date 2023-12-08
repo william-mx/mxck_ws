@@ -1,0 +1,259 @@
+<?xml version="1.0" ?>
+<robot name="mxcarkit" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find mxcarkit_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find mxcarkit_description)/urdf/mxcarkit.trans" />
+<xacro:include filename="$(find mxcarkit_description)/urdf/mxcarkit.gazebo" />
+
+<link name="base_footprint"/>
+
+<joint name="footprint_joint" type="fixed">
+  <parent link="base_footprint"/>
+  <child link="base_link"/>
+</joint>
+
+<link name="base_link">
+  <inertial>
+    <origin xyz="0.0015961496453554915 0.0 0.058207406556949434" rpy="0 0 0"/>
+    <mass value="2.1464476957000236"/>
+    <inertia ixx="0.008079" iyy="0.026184" izz="0.031905" ixy="0.0" iyz="0.0" ixz="-0.000205"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="right_rear_wheel_1">
+  <inertial>
+    <origin xyz="0.0 -0.020999999999999977 6.938893903907228e-18" rpy="0 0 0"/>
+    <mass value="0.28864603013602147"/>
+    <inertia ixx="0.000212" iyy="0.000339" izz="0.000212" ixy="-0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.18 0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/right_rear_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.18 0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/right_rear_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="left_rear_wheel_1">
+  <inertial>
+    <origin xyz="0.0 0.021000000000000033 6.938893903907228e-18" rpy="0 0 0"/>
+    <mass value="0.28864603013602147"/>
+    <inertia ixx="0.000212" iyy="0.000339" izz="0.000212" ixy="-0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.18 -0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/left_rear_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.18 -0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/left_rear_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="right_steer_link_1">
+  <inertial>
+    <origin xyz="0.0 -0.01118138031512074 -0.010000000000000009" rpy="0 0 0"/>
+    <mass value="0.018170088212805177"/>
+    <inertia ixx="5e-06" iyy="4e-06" izz="2e-06" ixy="-0.0" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.18 0.083 -0.0585" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/right_steer_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.18 0.083 -0.0585" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/right_steer_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="left_steer_link_1">
+  <inertial>
+    <origin xyz="0.0 0.011181380315120712 -0.010000000000000009" rpy="0 0 0"/>
+    <mass value="0.018170088212805177"/>
+    <inertia ixx="5e-06" iyy="4e-06" izz="2e-06" ixy="0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.18 -0.083 -0.0585" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/left_steer_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.18 -0.083 -0.0585" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/left_steer_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="right_front_wheel_1">
+  <inertial>
+    <origin xyz="0.0 -0.021000000000000005 6.938893903907228e-18" rpy="0 0 0"/>
+    <mass value="0.28864603013602136"/>
+    <inertia ixx="0.000212" iyy="0.000339" izz="0.000212" ixy="0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.18 0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/right_front_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.18 0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/right_front_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="left_front_wheel_1">
+  <inertial>
+    <origin xyz="0.0 0.021000000000000005 6.938893903907228e-18" rpy="0 0 0"/>
+    <mass value="0.28864603013602136"/>
+    <inertia ixx="0.000212" iyy="0.000339" izz="0.000212" ixy="0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.18 -0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/left_front_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.18 -0.108 -0.0485" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/left_front_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lidar_link_1">
+  <inertial>
+    <origin xyz="-2.42861286636753e-17 0.0 0.009990019417772611" rpy="0 0 0"/>
+    <mass value="0.06953959605669224"/>
+    <inertia ixx="2e-05" iyy="2e-05" izz="3.5e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0115 -0.0 -0.135" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/lidar_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0115 -0.0 -0.135" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/lidar_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="camera_link_1">
+  <inertial>
+    <origin xyz="-0.0010000000000000009 -4.8910410860030916e-18 0.010000000000000009" rpy="0 0 0"/>
+    <mass value="0.03079815878304933"/>
+    <inertia ixx="1.8e-05" iyy="2e-06" izz="1.8e-05" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.01 0.0 -0.1645" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/camera_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.01 0.0 -0.1645" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://mxcarkit_description/meshes/camera_link_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="rr_wheel_joint" type="continuous">
+  <origin xyz="-0.18 -0.108 0.0485" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="right_rear_wheel_1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+</joint>
+
+<joint name="lr_wheel_joint" type="continuous">
+  <origin xyz="-0.18 0.108 0.0485" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="left_rear_wheel_1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+</joint>
+
+<joint name="right_steer_joint" type="continuous">
+  <origin xyz="0.18 -0.083 0.0585" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="right_steer_link_1"/>
+  <axis xyz="0.0 0.0 1.0"/>
+</joint>
+
+<joint name="left_steer_joint" type="continuous">
+  <origin xyz="0.18 0.083 0.0585" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="left_steer_link_1"/>
+  <axis xyz="0.0 0.0 1.0"/>
+</joint>
+
+<joint name="rf_wheel_joint" type="continuous">
+  <origin xyz="0.0 -0.025 -0.01" rpy="0 0 0"/>
+  <parent link="right_steer_link_1"/>
+  <child link="right_front_wheel_1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+</joint>
+
+<joint name="lf_wheel_joint" type="continuous">
+  <origin xyz="0.0 0.025 -0.01" rpy="0 0 0"/>
+  <parent link="left_steer_link_1"/>
+  <child link="left_front_wheel_1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+</joint>
+
+<joint name="lidar_joint" type="continuous">
+  <origin xyz="0.0115 0.0 0.135" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="lidar_link_1"/>
+  <axis xyz="0.0 0.0 1.0"/>
+</joint>
+
+<joint name="camera_joint" type="fixed">
+  <origin xyz="0.01 0.0 0.1645" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="camera_link_1"/>
+</joint>
+
+</robot>

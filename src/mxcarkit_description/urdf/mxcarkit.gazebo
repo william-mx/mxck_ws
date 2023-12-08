@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<robot name="mxcarkit" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+<xacro:property name="body_color" value="Gazebo/Silver" />
+
+<gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"/>
+  <robotNamespace>/mxcarkit</robotNamespace>
+  <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+</gazebo>
+<gazebo reference="base_link">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+  <gravity>true</gravity>
+</gazebo>
+
+<gazebo reference="right_rear_wheel_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="left_rear_wheel_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="right_steer_link_1">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="left_steer_link_1">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="right_front_wheel_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="left_front_wheel_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="lidar_link_1">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="camera_link_1">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+</robot>

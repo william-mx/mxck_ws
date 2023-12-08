@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<robot name="mxcarkit" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+<transmission name="rr_wheel_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="rr_wheel_joint">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="rr_wheel_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="lr_wheel_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="lr_wheel_joint">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="lr_wheel_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="right_steer_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="right_steer_joint">
+    <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="right_steer_actr">
+    <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="left_steer_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="left_steer_joint">
+    <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="left_steer_actr">
+    <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="rf_wheel_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="rf_wheel_joint">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="rf_wheel_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="lf_wheel_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="lf_wheel_joint">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="lf_wheel_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="lidar_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="lidar_joint">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="lidar_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+</robot>
