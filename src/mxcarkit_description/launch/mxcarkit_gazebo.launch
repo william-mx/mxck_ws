@@ -1,0 +1,13 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro $(find mxcarkit_description)/urdf/mxcarkit.xacro"/>
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model mxcarkit"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+  <include file="$(find mxcarkit_description)/launch/controller.launch"/>
+  <node name="ackermann_to_joints" pkg="joint_controlling" type="ackermann_to_joints.py"/>
+</launch>
