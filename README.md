@@ -3,6 +3,7 @@
 Install ROS Noetic on your System:
 http://wiki.ros.org/noetic/Installation
 The full desktop installation already includes the correct gazebo Version.
+You need to install gazebo 11
 
 Clone the mxck_gazebo branch of this github to mxck_ws/mxck_gazebo folder:
 ```
