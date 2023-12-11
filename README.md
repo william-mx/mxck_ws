@@ -18,11 +18,11 @@ Build the workspace with catikin:
 catkin_make
 ```
 
-Open Gazebo and add the following path to the model paths:
+To load the model of the track you have to add the model path to the Gazebo model path. You can do that by adding the following to lines to your ~/.bashrc file.
 ```
-~/mxck_ws/mxck_gazebo/src/mxcarkit_description/worlds/models
+source /usr/share/gazebo-11/setup.sh
+export GAZEBO_MODEL_PATH=~/mxck_ws/mxck_gazebo/src/mxcarkit_description/worlds/models:${GAZEBO_MODEL_PATH}
 ```
-close Gazebo again
 
 ## Starting the Simulation
 Source the setup.bash:
