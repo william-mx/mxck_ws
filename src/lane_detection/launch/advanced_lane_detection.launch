@@ -1,0 +1,27 @@
+<launch>
+  
+  <arg name="play_bagfile" default="false" />
+  
+  <!--play bagfile-->
+  <arg name="file_path" default="$(find lane_detection)/bagfiles/left_round.bag" />
+
+  <group if="$(arg play_bagfile)">
+    <node name="play_bagfile" pkg="rosbag" type="play" 
+        args="-l $(arg file_path) --wait-for-subscribers" >
+    </node>
+  </group>
+    
+  <!--lane detection-->
+  <node pkg="lane_detection" type="advanced_lane_detection.py" name="advanced_lane_detection" required = "true" output = "screen" />
+  
+  <!--pid controller-->
+  <node pkg="pid_control" type="pid_controller.py" name="pid_controller" required = "true" output = "screen" />
+  
+  <!--dynamic reconfigure-->
+  <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui"  args="-s reconfigure" />
+
+
+</launch>
+
+
+
