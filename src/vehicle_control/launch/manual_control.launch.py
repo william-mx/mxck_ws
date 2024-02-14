@@ -30,21 +30,21 @@ def generate_launch_description():
         package = 'vehicle_control',
         name = 'rc_to_joy',
         executable = 'rc_to_joy',
-        parameters = [vesc_config]
+        parameters = [control_config]
     )
 
     joy2ackermann=Node(
         package = 'vehicle_control',
         name = 'joy_to_ackermann',
         executable = 'joy_to_ackermann',
-        parameters = [vesc_config]
+        parameters = [control_config]
     )
 
     ackermann2vesc=Node(
         package = 'vehicle_control',
         name = 'ackermann_to_vesc',
         executable = 'ackermann_to_vesc',
-        parameters = [vesc_config]
+        parameters = [control_config]
     )
     
     nucleo=Node(

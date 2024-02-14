@@ -18,11 +18,11 @@ echo "sourcing $MICROROS_SH"
 # setup vesc environment
 source $VESC_SH
 echo "sourcing $VESC_SH"
-
+s
 
 # build mxck environment
 if test ! -f "$MXCK_SH"; then
-    colcon build
+    colcon build --symlink-install
 fi
 
 # setup mxck environment

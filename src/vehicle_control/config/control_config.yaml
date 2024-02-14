@@ -74,14 +74,8 @@ ackermann_to_vesc:
     # rostopic pub -r 5 /commands/motor/speed {erpm} e.g. erpm = 4000
     # from this the speed is calculated speed (m/s) = distance (m) / time (s)
     # calculate speed_to_erpm_gain = erpm / speed
-    speed_to_duty_gain: 0.25 # duty = speed_to_duty_gain x speed (m/s)
-
-    # duty
-    duty_min: -0.5 # backwards
-    duty_mid:  0. #
-    duty_max: 0.5 # forward
-
-
+    speed_to_erpm_gain: 3786 # erpm = speed_to_erpm_gain x speed (m/s) + speed_to_erpm_offset
+    
     # manual control
     rc_deadman_button: 0 
     rc_dead_value: 0 # dont drive

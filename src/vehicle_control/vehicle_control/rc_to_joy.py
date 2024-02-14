@@ -3,7 +3,7 @@ from rclpy.node import Node
 from rclpy.clock import Clock
 from rclpy.logging import get_logger
 
-from micro_msgs.msg import VehCtrlCustomMessage
+from mxcarkit_vehctrl_message.msg import VehCtrlCustomMessage
 from sensor_msgs.msg import Joy
 
 

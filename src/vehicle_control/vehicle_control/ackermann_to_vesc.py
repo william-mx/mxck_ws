@@ -15,14 +15,14 @@ class AckermannToVesc(Node):
 
         self.init_mapping_function()
 
-        self.duty_msg = Float64()
+        self.erpm_msg = Float64()
         self.servo_msg = Float64()
 
         self.rc_sub = self.create_subscription(AckermannDriveStamped, '/rc/ackermann_cmd', lambda x: self.callback(x, self.manu_val), 10)
         self.ad_sub = self.create_subscription(AckermannDriveStamped, '/autonomous/ackermann_cmd', lambda x: self.callback(x, self.auto_val), 10)
         self.joy_sub = self.create_subscription(Joy, '/rc/joy', self.deadman_callback, 10)
 
-        self.duty_pub = self.create_publisher(Float64, '/commands/motor/duty_cycle', 10)
+        self.erpm_pub = self.create_publisher(Float64, '/commands/motor/speed', 10)
         self.servo_pub = self.create_publisher(Float64, '/commands/servo/position', 10)
 
 
@@ -35,10 +35,7 @@ class AckermannToVesc(Node):
         self.declare_parameter('wheelbase', rclpy.Parameter.Type.DOUBLE)
         self.declare_parameter('lr_rmin', rclpy.Parameter.Type.DOUBLE)
         self.declare_parameter('rr_rmin', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('speed_to_duty_gain', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('duty_min', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('duty_mid', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('duty_max', rclpy.Parameter.Type.DOUBLE)
+        self.declare_parameter('speed_to_erpm_gain', rclpy.Parameter.Type.INTEGER)
         self.declare_parameter('rc_deadman_button', rclpy.Parameter.Type.INTEGER)
         self.declare_parameter('rc_dead_value', rclpy.Parameter.Type.INTEGER)
         self.declare_parameter('rc_auto_value', rclpy.Parameter.Type.INTEGER)
@@ -56,13 +53,9 @@ class AckermannToVesc(Node):
         self.lr_rmin = self.get_parameter('lr_rmin').get_parameter_value().double_value
         self.rr_rmin = self.get_parameter('rr_rmin').get_parameter_value().double_value
         
-        # Speed to duty gain
-        self.speed_to_duty_gain = self.get_parameter('speed_to_duty_gain').get_parameter_value().double_value
+        # Speed to erpm gain
+        self.speed_to_erpm_gain = self.get_parameter('speed_to_erpm_gain').get_parameter_value().integer_value
         
-        # Duty cycle
-        self.duty_min = self.get_parameter('duty_min').get_parameter_value().double_value
-        self.duty_mid = self.get_parameter('duty_mid').get_parameter_value().double_value
-        self.duty_max = self.get_parameter('duty_max').get_parameter_value().double_value
         
         # Control configurations
         self.dead_btn = self.get_parameter('rc_deadman_button').get_parameter_value().integer_value
@@ -79,8 +72,7 @@ class AckermannToVesc(Node):
         steer_rad = msg.drive.steering_angle
         speed = msg.drive.speed
 
-
-        duty = self.speed_to_duty_gain * speed
+        erpm = self.speed_to_erpm_gain * speed
 
         if steer_rad > 0:
             val = self.rr_m * steer_rad + self.servo_mid
@@ -88,10 +80,10 @@ class AckermannToVesc(Node):
             val = self.lr_m * steer_rad + self.servo_mid
 
         self.servo_msg.data = max(min(val, self.servo_max), self.servo_min)
-        self.duty_msg.data = max(min(duty, self.duty_max), self.duty_min)
+        self.erpm_msg.data = erpm
         
         self.servo_pub.publish(self.servo_msg)
-        self.duty_pub.publish(self.duty_msg)
+        self.erpm_pub.publish(self.erpm_msg)
 
     def deadman_callback(self, msg):
         self.mode = msg.buttons[self.dead_btn]
