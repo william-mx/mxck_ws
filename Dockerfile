@@ -31,6 +31,9 @@ RUN mkdir -p /vesc_ws \
 RUN apt install -y python3-pip \
 && python3 -m pip install setuptools==58.2.0
 
+RUN apt update && apt install -y \
+    ros-$ROS_DISTRO-foxglove-bridge
+
 COPY ./ros_entrypoint.sh /ros_entrypoint.sh
 RUN echo 'source /ros_entrypoint.sh' >> ~/.bashrc
 
