@@ -22,7 +22,7 @@ class AckermannToVesc:
         self.init_mapping_function()
 
         # Define messages
-        self.duty_msg = Float64()
+        self.erpm_msg = Float64()
         self.servo_msg = Float64()
 
         # Subscribe to PWM signals from RC receiver
@@ -31,7 +31,7 @@ class AckermannToVesc:
         self.joy_sub = rospy.Subscriber('/rc/joy', Joy, self.deadman)
 
         # Publish commands to VESC driver
-        self.duty_pub = rospy.Publisher('/commands/motor/duty_cycle', Float64, queue_size=1)
+        self.erpm_pub = rospy.Publisher('/commands/motor/speed', Float64, queue_size=1)
         self.servo_pub = rospy.Publisher('/commands/servo/position', Float64, queue_size=1)
       
         # force the user to switch to manual mode at program start
@@ -57,12 +57,7 @@ class AckermannToVesc:
         steer_rad = ackermann_msg.drive.steering_angle
         speed = ackermann_msg.drive.speed
 
-        # Similar to real vehicles, carkits cannot drive infinitely slow.
-        # Set a minimum starting speed for sensorless commutation.
-        if abs(speed) > self.speed_clip:
-            duty = self.speed_to_duty_gain * speed
-        else:
-            duty = self.duty_mid
+        erpm = self.speed_to_erpm_gain * speed
 
         if abs(steer_rad) > self.rad_max:
             rospy.logwarn("Clipping steering command to +/- %.3f" % self.rad_max)
@@ -74,20 +69,19 @@ class AckermannToVesc:
             val = self.lr_m * steer_rad + self.servo_mid
 
         self.servo_msg.data = max(min(val, self.servo_max), self.servo_min)
-        self.duty_msg.data = duty
+        self.erpm_msg.data = erpm
 
         self.servo_pub.publish(self.servo_msg)
-        self.duty_pub.publish(self.duty_msg)
+        self.erpm_pub.publish(self.erpm_msg)
 
     def load_params(self):
         self.wheelbase = rospy.get_param("/wheelbase")
         self.servo_mid = rospy.get_param("/servo_mid")
         self.servo_max = rospy.get_param("/servo_max")
         self.servo_min = rospy.get_param("/servo_min")
-        self.duty_mid = rospy.get_param("/duty_mid")
         self.lr_rmin = rospy.get_param("/lr_rmin")
         self.rr_rmin = rospy.get_param("/rr_rmin")
-        self.speed_to_duty_gain = rospy.get_param("/speed_to_duty_gain")
+        self.speed_to_erpm_gain = rospy.get_param("/speed_to_erpm_gain")
         self.speed_clip = rospy.get_param("/speed_clip")
         self.dead_val = rospy.get_param("/rc_dead_value")  # Deadman switch
         self.auto_val = rospy.get_param("/rc_auto_value")  # Drive autonomously
