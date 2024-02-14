@@ -18,17 +18,22 @@ source $MICROROS_SH
 source $VESC_SH
 
 
-# # setup mxck environment
-# source $MXCK_SH
+# build mxck environment
+if test ! -f "$MXCK_SH"; then
+    colcon build --symlink-install
+fi
+
+# setup mxck environment
+source $MXCK_SH
 
 
-# # run command
-# if [ "$1" = "true" ];
-# then
-#   bash
-# else
-#   bash
-# fi;
+# run command
+if [ "$1" = "true" ];
+then
+  bash
+else
+  bash
+fi;
 
 
 
