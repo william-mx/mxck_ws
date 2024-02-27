@@ -1,0 +1,9 @@
+<launch>
+    <node name="stream_color" pkg="realsense_stream" type="stream_color.py" output="screen">
+        <param name="width" value="640" />
+        <param name="height" value="480" />
+        <param name="fps" value="15" />
+        <param name="port" value="5555" />
+        <param name="host" value="localhost" />
+    </node>
+</launch>

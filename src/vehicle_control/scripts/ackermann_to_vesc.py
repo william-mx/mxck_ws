@@ -37,6 +37,13 @@ class AckermannToVesc:
         # force the user to switch to manual mode at program start
         self.init_mode = False
         self.informed = False # print information once
+
+        # check that rest position is calibrated correctly
+        self.speed_values = []
+        self.calibrated = False
+        n_seconds = 8 # watch for n seconds
+        hz = 40 # 40 values/second
+        self.min_values = n_seconds * hz
         
     def deadman(self, msg):
         self.mode = msg.buttons[self.dead_btn]
@@ -44,13 +51,23 @@ class AckermannToVesc:
         if self.mode == self.manu_val:
            self.init_mode = True
 
+    def watch_rest_position(self, ackermann_msg):
+        speed = ackermann_msg.drive.speed
+        self.speed_values.append(speed)
+       
+        if len(self.speed_values) > self.min_values:
+            self.speed_values.pop(0)
+
+            if max(self.speed_values) == 0 and min(self.speed_values) == 0:
+                rospy.loginfo("Calibration complete!")
+                self.calibrated = True
+                
     def callback(self, ackermann_msg, target):
 
-        if not self.init_mode:
-            if not self.informed:
-               rospy.logwarn("Safety feature: First, switch to manual mode to start the controller!")
-               self.informed = True
-         
+        if not self.calibrated:
+            self.watch_rest_position(ackermann_msg)
+            return
+            
         if self.mode != target:
             return
 
@@ -103,20 +120,11 @@ class AckermannToVesc:
 
 
 if __name__ == '__main__':
-   rospy.init_node('ackermann_to_vesc', anonymous=True)
+    rospy.init_node('ackermann_to_vesc', anonymous=True)
    
-   # The emergency stop function is a necessary safety feature.
-   # Therefore, a safety check is performed first to verify if the RC is properly calibrated
-   r = rospkg.RosPack()
-   fpath = r.get_path('vehicle_control') + '/config/control_config.yaml'
+    A2V = AckermannToVesc()
 
-   wiz = CalibrationWizard(fpath)
-   success = wiz.await_calibration_completion()
-
-   if success:
-      av = AckermannToVesc()
-
-   try:
-      rospy.spin()
-   except KeyboardInterrupt:
-      print("Shutting down ackermann_to_vesc")
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down ackermann_to_vesc")

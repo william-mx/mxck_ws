@@ -8,6 +8,7 @@ BASE_DIR=/home/mxck/mxck_ws/mxck_base
 
 # run ros docker container
 sudo docker run -it --rm \
+--runtime nvidia \
 --mount type=bind,source=$BASE_DIR,target=/melodic_ws \
 --mount type=bind,source=$BASE_DIR/ros_entrypoint.sh,target=/ros_entrypoint.sh \
 --mount type=bind,source=/dev,target=/dev \
