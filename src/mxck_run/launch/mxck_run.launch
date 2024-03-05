@@ -22,15 +22,16 @@
   <arg name="control_type" default="rc" /> <!--rc or joy-->
 
   <!--foxglove topic whitelist-->
-  <arg name="whitelist" value=" [\
-  '/imu_filtered', \
-  '/imu_calibrated', \
-  '/pdc_visualization', \
-  '/camera/color/image_raw', \
-  '/bboxs', \
-  '/scan', \
-  '/rs_imu' \
-  '/uss_values]" />
+  <arg name="whitelist" value="[
+  /imu_filtered,
+  /imu_calibrated,
+  /pdc_visualization,
+  /camera/color/image_raw,
+  /bboxs,
+  /scan,
+  /rs_imu,
+  /uss_values
+  ]" />
 
   <!--camera-->
   <group if="$(arg run_camera)">
