@@ -162,6 +162,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/realsense_image_publisher.py
   scripts/realsense_image_subscriber.py
+  scripts/realsense_imu_publisher.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

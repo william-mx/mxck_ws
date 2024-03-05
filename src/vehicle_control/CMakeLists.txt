@@ -160,10 +160,9 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS 
-  scripts/joy_to_ackermann.py
   scripts/rc_to_joy.py
+  scripts/joy_to_ackermann.py
   scripts/ackermann_to_vesc.py
-  scripts/rc_safety_check.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

@@ -1,0 +1,13 @@
+<launch>
+    <!-- 
+    Launch the RealSense IMU Publisher Node
+    Note: The valid fps may vary depending on the firmware version of the RealSense camera.
+    To check the valid fps, open the RealSense Viewer, activate the motion module, and check the valid fps.
+    For RealSense Firmware Version: 5.15.1, the valid accel fps are [100, 200]. For gyro, the valid fps are [200, 400].
+    -->
+    <node name="realsense_imu_publisher" pkg="realsense_stream" type="realsense_imu_publisher.py" output="screen">
+        <!-- Set the IMU data rates -->
+        <param name="accel_fps" value="200"/>
+        <param name="gyro_fps" value="200"/>
+    </node>
+</launch>
