@@ -1,5 +1,5 @@
 <launch>
-    <node name="stream_color" pkg="realsense_stream" type="stream_color.py" output="screen">
+    <node name="realsense_image_publisher" pkg="realsense_stream" type="realsense_image_publisher.py" output="screen">
         <param name="width" value="640" />
         <param name="height" value="480" />
         <param name="fps" value="15" />

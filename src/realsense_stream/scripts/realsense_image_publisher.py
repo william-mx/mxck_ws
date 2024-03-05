@@ -55,14 +55,20 @@ def main():
             color_frame = frames.get_color_frame()
             if not color_frame:
                 continue
-
+            
+            # Get current timestamp
+            timestamp = rospy.get_time()
+        
             color_image = np.asanyarray(color_frame.get_data())
             
             # Encode image as JPEG
             success, img_encoded = cv2.imencode('.jpg', color_image)
             
-            # Send image
+            # Send image and timestamp as a multi-part message
             if success:
+                # Convert timestamp to bytes and send as the first part of the message
+                socket.send_string(str(timestamp), zmq.SNDMORE)
+                # Send image data as the second part of the message
                 socket.send(img_encoded.tobytes())
                 
     except KeyboardInterrupt:

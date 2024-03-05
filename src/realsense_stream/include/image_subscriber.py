@@ -23,10 +23,17 @@ class ImageSubscriber:
     def start_receiving(self):
         try:
             while not rospy.is_shutdown():
+
+                # First part: Timestamp
+                timestamp_bytes = self.socket.recv()
+                timestamp = float(timestamp_bytes.decode('utf-8'))
+                
+                # Second part: Image data
                 frame = self.socket.recv()
                 npimg = np.frombuffer(frame, dtype=np.uint8)
                 image = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
                 self.callback_fn(image)
+                
         finally:
             self.socket.close()
             self.context.term()
