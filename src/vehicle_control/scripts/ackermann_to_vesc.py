@@ -16,6 +16,10 @@ class AckermannToVesc:
         # Initialize messages for publishing speed and servo position
         self.erpm_msg = Float64()
         self.servo_msg = Float64()
+        
+        # Initialize brake message
+        self.brake_msg = Float64()
+        self.brake_msg.data = self.brake_amps
 
         # Safety check parameters and subscriber
         self.speed_values = []  # Stores speed values for safety check
@@ -33,8 +37,9 @@ class AckermannToVesc:
 
         # Publishers for motor speed and servo position
         self.erpm_pub = rospy.Publisher('/commands/motor/speed', Float64, queue_size=1)
-        self.servo_pub = rospy.Publisher('/commands/servo/position', Float64, queue_size=1)
-      
+        self.servo_pub = rospy.Publisher('/commands/servo/position', Float64, queue_size=1) 
+        self.brake_pub = rospy.Publisher('/commands/motor/brake', Float64, queue_size=1) 
+        
         # Inform user about safety check procedure
         info_msg = ("Please activate 'Deadman' mode. Do not touch the throttle or steering for {} seconds. "
                     "Safety check ends when speed stays at 0 m/s during this time.").format(n_seconds)
@@ -46,10 +51,23 @@ class AckermannToVesc:
             self.rc_sub = rospy.Subscriber('/rc/ackermann_cmd', AckermannDriveStamped, lambda x: self.callback(x, self.manu_val))
             self.ad_sub = rospy.Subscriber('/autonomous/ackermann_cmd', AckermannDriveStamped, lambda x: self.callback(x, self.auto_val))
 
+    def brake(self):
+        # Publishes the brake message hz times in rapid succession, causing a blocking effect.
+        hz = 420
+        
+        rate = rospy.Rate(hz)  
+
+        for _ in range(hz):  # Publish 1s
+            self.brake_pub.publish(self.brake_msg)
+            rate.sleep()
+        
     def update_mode(self, msg):
         """Update the driving mode based on joystick input."""
         new_mode = msg.buttons[self.mode_btn]
-        if new_mode != self.mode:
+        
+        if new_mode != self.mode: # mode change
+            self.brake() # emergency brake
+            
             self.mode = new_mode
             mode_name = {self.dead_val: "Deadman", self.auto_val: "Autonomous", self.manu_val: "Manual"}.get(self.mode, "Unknown")
             rospy.loginfo("Mode changed to: {}".format(mode_name))
@@ -88,12 +106,20 @@ class AckermannToVesc:
 
         # Publish commands to VESC
         self.servo_pub.publish(self.servo_msg)
-        self.erpm_pub.publish(self.erpm_msg)
+        
+
+        if abs(erpm) < self.erpm_min:
+            self.brake_pub.publish(self.brake_msg)
+        else:
+            self.erpm_pub.publish(self.erpm_msg)
 
     def load_params(self):
         self.servo_mid = rospy.get_param("/servo_mid")
         self.servo_max = rospy.get_param("/servo_max")
         self.servo_min = rospy.get_param("/servo_min")
+        
+        self.erpm_min = rospy.get_param("/erpm_min")
+        self.brake_amps = rospy.get_param("/brake_amps")
         
         self.speed_to_erpm_gain = rospy.get_param("/speed_to_erpm_gain")
         self.steer_to_servo_gain = rospy.get_param("/steer_to_servo_gain")

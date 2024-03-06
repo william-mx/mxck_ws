@@ -1,7 +1,7 @@
 ### RC to JOY Configuration ###
 # Min, mid, and max PWM values for all 3 RC controller axes and buttons
 steering_min_pwm: 1100  # Minimum PWM for steering
-steering_mid_pwm: 1440  # Midpoint PWM for steering, represents neutral position
+steering_mid_pwm: 1500  # Midpoint PWM for steering, represents neutral position
 steering_max_pwm: 1900  # Maximum PWM for steering
 
 speed_min_pwm: 1000     # Minimum PWM for speed
@@ -23,7 +23,7 @@ steering_angle_max: 0.44  # Maximum steering angle in radians (+/-)
 
 # Speed limits in meters per second (m/s)
 speed_min: -2.0  # Minimum speed, represents maximum reverse speed in m/s
-speed_max: 2.0   # Maximum speed, represents maximum forward speed in m/s
+speed_max: 5.0   # Maximum speed, represents maximum forward speed in m/s
 
 ### Ackermann to VESC Configuration ###
 # Servo values (/commands/servo/position) ranging from 0 to 1
@@ -31,6 +31,17 @@ speed_max: 2.0   # Maximum speed, represents maximum forward speed in m/s
 servo_max: 0.9    # Max servo position, prevents steering block by not going fully right
 servo_min: 0.1    # Min servo position, prevents steering block by not going fully left
 servo_mid: 0.502  # Mid servo position, represents neutral steering position
+
+# Minimum ERPM Configuration:
+# The minimum ERPM value is specified in the VESC motor configuration, under:
+# VESC Tool 6: Motor Settings > PID Controllers > Minimum ERPM.
+# It's crucial to use the same minimum ERPM value here to ensure consistency.
+# The MXcarKit applies brakes when the ERPM falls below this minimum value.
+# Additionally, engaging the deadman switch will trigger braking.
+erpm_min: 1200
+
+# VESC braking current in Ampere
+brake_amps: -20.0
 
 # Formula for converting steering angle (in radians) to servo position
 # steering_val = steer_to_servo_gain * steering_angle (in radians)

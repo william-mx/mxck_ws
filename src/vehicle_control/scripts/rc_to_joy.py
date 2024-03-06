@@ -4,29 +4,22 @@ import rospy
 from std_msgs.msg import UInt16MultiArray
 from sensor_msgs.msg import Joy
 import numpy as np
+import sys
+import rospkg
 
-def get_interp(x_vals, y_vals):     
-   return lambda x: np.interp(x, x_vals, y_vals)
- 
-# def get_interp(x_vals, y_vals, thresholds = None):
+sys.path.append(rospkg.RosPack().get_path('vehicle_control') + '/include')
+from utils import get_interp
 
-#    thresholds = thresholds or [0] * len(x_vals)
-
-#    x_expanded, y_expanded = [], []
-#    for x,y,t in zip(x_vals, y_vals, thresholds):
-#       if t:
-#          x = [x-t/2, x, x+t/2]
-#          y = [y, y, y]
-      
-#       x_expanded.extend(x)
-#       y_expanded.extend(y)
-      
-#    return lambda x: np.interp(x, x_expanded, y_expanded)
 
 class RCJoystick:
 
    def __init__(self):
-
+      
+      # define thresholds
+      self.mode_threshold = (100, 100, 100)
+      self.steer_threshold = (0, 10, 0)
+      self.speed_threshold = (0, 20, 0)
+      
       # load parameters
       self.load_params()
       
@@ -96,9 +89,9 @@ class RCJoystick:
       self.speed_ax = rospy.get_param("/rc_speed_axis")
       self.mode_btn = rospy.get_param("/rc_mode_button")
       
-      self.steer_mapping = get_interp((steer_min_pwm, steer_mid_pwm, steer_max_pwm), (-1.0, 0.0, 1.0))
-      self.speed_mapping = get_interp((speed_min_pwm, speed_mid_pwm, speed_max_pwm), (-1.0, 0.0, 1.0))
-      self.mode_mapping = get_interp((mode_min_pwm, mode_mid_pwm, mode_max_pwm), (0, 1, 2))
+      self.steer_mapping = get_interp((steer_min_pwm, steer_mid_pwm, steer_max_pwm), (-1.0, 0.0, 1.0), self.steer_threshold)
+      self.speed_mapping = get_interp((speed_min_pwm, speed_mid_pwm, speed_max_pwm), (-1.0, 0.0, 1.0), self.speed_threshold)
+      self.mode_mapping = get_interp((mode_min_pwm, mode_mid_pwm, mode_max_pwm), (0, 1, 2), self.mode_threshold)
 
 if __name__ == '__main__':
 
