@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="run_camera" default="false" />
-  <arg name="stream_via" default="zqm" /> <!--zqm or ros-->
+  <arg name="stream_via" default="zmq" /> <!--zmq or ros-->
   <arg name="run_motors" default="false"/> <!--manual control-->
   <arg name="run_lidar" default="false" /> 
   <arg name="run_micro" default="false" /> <!--microcontroller: us, lights, imu, rc-->
@@ -48,7 +48,7 @@
     </group>  
 	
     <!--zqm stream-->
-    <group if="$(eval arg('stream_via') == 'zqm')">
+    <group if="$(eval arg('stream_via') == 'zmq')">
       <node name="realsense_image_publisher" pkg="realsense_stream" type="realsense_image_publisher.py" output="screen">
           <param name="width" value="640" />
           <param name="height" value="480" />
