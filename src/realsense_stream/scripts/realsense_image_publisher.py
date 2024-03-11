@@ -30,6 +30,7 @@ def main():
     width = rospy.get_param('~width', 1920)
     height = rospy.get_param('~height', 1080)
     fps = rospy.get_param('~fps', 30)
+    port = rospy.get_param('~port', 5555)
 
     # Validate configuration
     try:
@@ -41,8 +42,11 @@ def main():
     # Setup ZeroMQ publisher
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
-    socket.bind("tcp://*:5555")
+    socket.bind("tcp://*:{}".format(port))
 
+    # Log the publishing address and port
+    rospy.loginfo("Publishing realsense messages on tcp://*:{}".format(port))
+    
     # RealSense capture setup
     pipeline = rs.pipeline()
     config = rs.config()

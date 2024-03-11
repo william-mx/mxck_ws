@@ -27,14 +27,17 @@
   /imu_calibrated,
   /pdc_visualization,
   /camera/color/image_raw,
+  /camera/gray/image_raw,
+  /camera/color/image_jpeg,
   /bboxs,
   /scan,
   /rs_imu,
-  /uss_values
+  /uss_values,
   ]" />
 
   <!--camera-->
   <group if="$(arg run_camera)">
+  <param name="/stream_via" value="$(arg stream_via)" />
 
     <!--ros image-->
     <group if="$(eval arg('stream_via') == 'ros')">
