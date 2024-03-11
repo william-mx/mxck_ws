@@ -10,7 +10,6 @@
   <arg name="run_rs_imu" default="false" /> <!--publish realsense imu-->
   <arg name="run_foxglove" default="false" /> <!--stream data using foxglove-->
   <arg name="run_lights" default="false" /> <!--turn lights on-->
-  <arg name="run_server" default="false" /> <!--launch nodes using foxglove-->
 
    <!--ports-->
   <arg name="joy_port" value="/dev/input/js0" />
@@ -119,11 +118,6 @@
       <arg name="send_buffer_limit" value="10000000" />
       <arg name="topic_whitelist" value="$(arg whitelist)" />
     </include>
-  </group>
-
-  <!--launch server-->
-  <group if="$(arg run_server)">
-    <node pkg="mxck_run" name="launch_server" type="launch_server.py" output="screen"/>
   </group>
   
 

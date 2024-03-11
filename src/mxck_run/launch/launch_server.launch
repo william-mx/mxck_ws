@@ -1,7 +1,0 @@
-<launch>
-
-  <node pkg="mxck_run" name="launch_server" type="launch_server.py" output="screen"/>
-
-</launch>
-
-
