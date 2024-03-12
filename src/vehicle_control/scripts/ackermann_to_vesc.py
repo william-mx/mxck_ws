@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import numpy as np
 from ackermann_msgs.msg import AckermannDriveStamped
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64
@@ -44,7 +45,24 @@ class AckermannToVesc:
         info_msg = ("Please activate 'Deadman' mode. Do not touch the throttle or steering for {} seconds. "
                     "Safety check ends when speed stays at 0 m/s during this time.").format(n_seconds)
         rospy.loginfo(info_msg)
+    
+    def signal_calibration_complete(self):
+        # Publish simple sinus sweep to indicate that the calibration was complete
+
+        rate = rospy.Rate(40)
         
+        amplitude = 0.2
+        frequency = 3.0
+        vertical_shift = 0.5
+
+        t = np.linspace(0, np.pi, 60)
+        values = amplitude * np.sin(frequency * t) + vertical_shift
+        
+        for value in values:
+            self.servo_pub.publish(Float64(value))
+            rate.sleep()
+            
+    
     def initialize_subscribers(self):
         """Initialize subscribers for manual and autonomous driving commands."""
         if self.rc_sub is None and self.ad_sub is None:
@@ -85,6 +103,7 @@ class AckermannToVesc:
             if max(self.speed_values) == 0 and min(self.speed_values) == 0:
                 rospy.loginfo("Calibration complete!")
                 self.safety_sub.unregister()  # Unsubscribe after passing the safety check
+                self.signal_calibration_complete() # Publish simple sinus sweep to indicate that the calibration was complete
                 self.initialize_subscribers()  # Activate driving command subscribers
                 
                 

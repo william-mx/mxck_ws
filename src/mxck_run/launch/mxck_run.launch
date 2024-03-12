@@ -32,6 +32,7 @@
   /scan,
   /rs_imu,
   /uss_values,
+  /veh_remote_ctrl,
   ]" />
 
   <!--camera-->

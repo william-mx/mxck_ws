@@ -7,8 +7,24 @@ import numpy as np
 import sys
 import rospkg
 
-sys.path.append(rospkg.RosPack().get_path('vehicle_control') + '/include')
-from utils import get_interp
+def get_interp(x_vals, y_vals, thresholds = None):
+
+   if thresholds is None:
+      return lambda x: np.interp(x, x_vals, y_vals)
+   
+   x_expanded, y_expanded = [], []
+   for x,y,t in zip(x_vals, y_vals, thresholds):
+      if t:
+         x = [x-t/2, x, x+t/2]
+         y = [y, y, y]
+      else:
+         x, y = [x], [y]
+
+      x_expanded.extend(x)
+      y_expanded.extend(y)
+
+      
+   return lambda x: np.interp(x, x_expanded, y_expanded)
 
 
 class RCJoystick:
@@ -89,6 +105,7 @@ class RCJoystick:
       self.speed_ax = rospy.get_param("/rc_speed_axis")
       self.mode_btn = rospy.get_param("/rc_mode_button")
       
+      # add +/- threshold 
       self.steer_mapping = get_interp((steer_min_pwm, steer_mid_pwm, steer_max_pwm), (-1.0, 0.0, 1.0), self.steer_threshold)
       self.speed_mapping = get_interp((speed_min_pwm, speed_mid_pwm, speed_max_pwm), (-1.0, 0.0, 1.0), self.speed_threshold)
       self.mode_mapping = get_interp((mode_min_pwm, mode_mid_pwm, mode_max_pwm), (0, 1, 2), self.mode_threshold)
