@@ -58,7 +58,11 @@ class IMUcalib:
       # publish as imu sensor_msg
       self.imu_pub = rospy.Publisher('/imu_calibrated', Imu, queue_size=200)
       self.filter_pub = rospy.Publisher('/imu_filtered', Imu, queue_size=200)
-      
+
+   def shutdown(self):
+      self.imu_pub.unregister()
+      self.filter_pub.unregister()
+        
    def calibrate(self, msg):
       self.data += [msg.data]
       
@@ -112,9 +116,11 @@ class IMUcalib:
       self.imu_msg.angular_velocity.y = data[4]
       self.imu_msg.angular_velocity.z = data[5]
 
-      self.imu_pub.publish(self.imu_msg)
-      
-      
+      try:
+        self.imu_pub.publish(self.imu_msg)
+      except rospy.ROSException as e:
+        print("Error publishing calibrated IMU data:", e)
+        
       # apply mean filter
       if self.apply_filter:
         data = self.butterworth_filter(data)
@@ -127,18 +133,23 @@ class IMUcalib:
         self.imu_msg.angular_velocity.y = data[4]
         self.imu_msg.angular_velocity.z = data[5]
 
-        self.filter_pub.publish(self.imu_msg)
-      
 
+      
+        try:
+          self.filter_pub.publish(self.imu_msg)
+        except rospy.ROSException as e:
+          print("Error publishing filtered IMU data:", e)
+        
 
 if __name__ == '__main__':
 
    # initialize node
    rospy.init_node('calibrate_imu', anonymous=True)
 
-   stamp = IMUcalib(apply_filter = True)
+   calib = IMUcalib(apply_filter = True)
 
    try:
       rospy.spin()
    except KeyboardInterrupt:
+      calib.shutdown()
       print("Shutting down")
