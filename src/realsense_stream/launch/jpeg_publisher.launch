@@ -1,0 +1,14 @@
+<launch>
+
+    <arg name="width" default="640" />
+    <arg name="height" default="360" />
+    <arg name="fps" default="30" />
+
+
+    <node pkg="realsense_stream" name="jpeg_publisher" type="realsense_jpeg_publisher.py" output="screen">
+        <param name="width" value="$(arg width)" />
+        <param name="height" value="$(arg height)" />
+        <param name="fps" value="$(arg fps)" />
+    </node>
+
+</launch>

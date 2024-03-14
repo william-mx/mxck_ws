@@ -4,10 +4,10 @@ import rospy
 import pyrealsense2 as rs
 import numpy as np
 import cv2
-import zmq
+from sensor_msgs.msg import CompressedImage
+from cv_bridge import CvBridge
 
 def validate_config(width, height, fps):
-    
     valid_sizes = [
         (1920, 1080), (1280, 720), (960, 540), 
         (848, 480), (640, 480), (640, 360), 
@@ -24,13 +24,12 @@ def validate_config(width, height, fps):
         raise ValueError(f"Unsupported FPS {fps} for resolution {size}. Valid FPS options are: {valid_fps}")
 
 def main():
-    rospy.init_node('realsense_zmq_publisher', anonymous=True)
+    rospy.init_node('realsense_compressed_publisher', anonymous=True)
     
     # Retrieve parameters from the ROS parameter server
-    width = rospy.get_param('~width', 1920)
-    height = rospy.get_param('~height', 1080)
+    width = rospy.get_param('~width', 640)
+    height = rospy.get_param('~height', 360)
     fps = rospy.get_param('~fps', 30)
-    port = rospy.get_param('~port', 5555)
 
     # Validate configuration
     try:
@@ -39,19 +38,17 @@ def main():
         rospy.logerr(e)
         return
 
-    # Setup ZeroMQ publisher
-    context = zmq.Context()
-    socket = context.socket(zmq.PUB)
-    socket.bind("tcp://*:{}".format(port))
+    # Log the publishing topic
+    rospy.loginfo("Publishing compressed images from RealSense camera")
 
-    # Log the publishing address and port
-    rospy.loginfo("Publishing realsense messages on tcp://*:{}".format(port))
-    
     # RealSense capture setup
     pipeline = rs.pipeline()
     config = rs.config()
     config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, fps)
     pipeline.start(config)
+
+    bridge = CvBridge()
+    pub = rospy.Publisher('/camera/color/image_jpeg', CompressedImage, queue_size=1)
 
     try:
         while not rospy.is_shutdown():
@@ -61,32 +58,29 @@ def main():
                 continue
             
             # Get current timestamp
-            timestamp = rospy.get_time()
-        
+            timestamp = rospy.Time.now()
+
             color_image = np.asanyarray(color_frame.get_data())
             
             # Encode image as JPEG
-            success, img_encoded = cv2.imencode('.jpg', color_image)
+            _, img_encoded = cv2.imencode('.jpg', color_image)
             
-            # Send image and timestamp as a multi-part message
-            if success:
-                # Convert timestamp to bytes and send as the first part of the message
-                socket.send_string(str(timestamp), zmq.SNDMORE)
-                # Send image data as the second part of the message
-                socket.send(img_encoded.tobytes())
+            # Create CompressedImage message
+            msg = CompressedImage()
+            msg.header.stamp = timestamp
+            msg.format = "jpeg"
+            msg.data = np.array(img_encoded).tobytes()
+            
+            # Publish the compressed image
+            pub.publish(msg)
                 
     except KeyboardInterrupt:
         pass
     finally:
         pipeline.stop()
-        socket.close()
-        context.term()
 
 if __name__ == '__main__':
     try:
         main()
     except rospy.ROSInterruptException:
         pass
-
-
-    

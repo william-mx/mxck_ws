@@ -36,11 +36,6 @@ RUN python3 -m pip install --upgrade pip \
     && python3 -m pip install \
     pyrealsense2 \
     numpy \
-    pyzmq \
     pyyaml \
     rospkg \
     opencv-python
-
-# Install ZeroMQ for Python 2
-RUN apt install --yes python-pip \
-  && pip2 install pyzmq

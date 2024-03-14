@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="run_camera" default="false" />
-  <arg name="stream_via" default="zmq" /> <!--zmq or ros-->
+  <arg name="stream_via" default="pyrealsense" /> <!--pyrealsense or realsense_camera-->
   <arg name="run_motors" default="false"/> <!--manual control-->
   <arg name="run_lidar" default="false" /> 
   <arg name="run_micro" default="false" /> <!--microcontroller: us, lights, imu, rc-->
@@ -10,8 +10,7 @@
   <arg name="run_rs_imu" default="false" /> <!--publish realsense imu-->
   <arg name="run_foxglove" default="false" /> <!--stream data using foxglove-->
   <arg name="run_lights" default="false" /> <!--turn lights on-->
-  <arg name="stream_jpeg" default="true" /> <!--forward zqm stream as compresses ros message -->
-
+  
    <!--ports-->
   <arg name="joy_port" value="/dev/input/js0" />
   <arg name="vesc_port" value="/dev/vesc" />
@@ -41,7 +40,7 @@
   <param name="/stream_via" value="$(arg stream_via)" />
 
     <!--ros image-->
-    <group if="$(eval arg('stream_via') == 'ros')">
+    <group if="$(eval arg('stream_via') == 'realsense_camera')">
       <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
         <arg name="color_width" value="320"/> <!--static params-->
         <arg name="color_height" value="180"/>
@@ -52,14 +51,11 @@
     </group>  
 	
     <!--zqm stream-->
-    <group if="$(eval arg('stream_via') == 'zmq')">
-      <include file="$(find realsense_stream)/launch/image_publisher.launch">
-          <arg name="stream_jpeg" value="$(arg stream_jpeg)" />
+    <group if="$(eval arg('stream_via') == 'pyrealsense')">
+      <include file="$(find realsense_stream)/launch/jpeg_publisher.launch">
           <arg name="width" value="640" />
-          <arg name="height" value="480" />
-          <arg name="fps" value="15" />
-          <arg name="port" value="5555" />
-          <arg name="host" value="localhost" />
+          <arg name="height" value="360" />
+          <arg name="fps" value="30" />
       </include>
     </group>
 

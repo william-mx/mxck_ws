@@ -1,19 +1,13 @@
+# Efficient RealSense Image Streaming ROS Package
 
+This ROS package provides an efficient solution for streaming images from RealSense cameras. It consists of two main scripts:
 
-# ROS Package for Efficient RealSense Image Streaming
+## `realsense_jpeg_publisher.py` (Publisher)
+- **Functionality:** Captures images from a RealSense camera and publishes them as ROS compressed image messages with JPEG encoding.
+  - Allows customization of settings such as image resolution and FPS.
 
-This ROS package serves as a practical alternative to the official `realsense_camera` package, offering significant performance improvements on constrained systems. It comprises two main scripts:
+## `realsense_jpeg_subscriber.py` (Subscriber)
+- **Functionality:** Demonstrates a sample node that subscribes to the ROS compressed image messages published by `realsense_jpeg_publisher.py`. It also measures the FPS (Frames Per Second) of the image stream.
 
-### `realsense_image_publisher.py` (Publisher)
-- **Functionality:** Captures images from a RealSense camera and publishes them over a network using ZeroMQ. 
-- **Configuration:** Allows for customizable settings, including image resolution (FPS), publishing port, and more, to optimize performance according to system capabilities.
-
-### `realsense_image_subscriber.py` (Subscriber)
-- **Functionality:** A sample node that subscribes to the image stream published by `realsense_image_publisher.py`. It demonstrates how to receive and process images efficiently.
-- **Integration:** Utilizes the `ImageSubscriber` module from `include/image_subscriber.py` for handling image reception and processing in a separate thread, ensuring minimal impact on the main program's performance.
-
-## Key Advantages
-- **Reduced CPU Load:** Specially designed to minimize computational demand, making it ideal for hardware with limited processing capacity.
-- **Flexible Configuration:** The publisher script's settings can be easily adjusted, offering the flexibility to balance performance and resource utilization.
-- **Streamlined Workflow:** Provides a straightforward approach for real-time image streaming and processing with ROS and ZeroMQ.
-
+### Performance
+- Achieves approximately 60 FPS with a resolution of (640, 360) on Jetson NX.

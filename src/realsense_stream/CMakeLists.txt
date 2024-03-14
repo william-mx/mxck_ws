@@ -160,10 +160,9 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  scripts/realsense_image_publisher.py
-  scripts/realsense_image_subscriber.py
+  scripts/realsense_jpeg_subscriber.py
   scripts/realsense_imu_publisher.py
-  scripts/stream_ros_images.py
+  scripts/realsense_jpeg_publisher.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
