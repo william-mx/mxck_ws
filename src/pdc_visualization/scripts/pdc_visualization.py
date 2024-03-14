@@ -2,7 +2,7 @@
 
 import rospy
 from std_msgs.msg import Int16MultiArray
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import rospkg
@@ -38,7 +38,7 @@ class PDCvisualization:
     base_dir = r.get_path('pdc_visualization')
 
     # load pdc visualization image
-    img_fpath = base_dir + '/images/pdc_visualization_template_small.tiff'
+    img_fpath = base_dir + '/images/pdc_visualization_template.tiff'
 
     if not os.path.exists(img_fpath):
         rospy.logerr("Image is not available at %s.", img_fpath)
@@ -65,7 +65,7 @@ class PDCvisualization:
       cv2.namedWindow("PDC Visualization", cv2.WND_PROP_FULLSCREEN)
 
     # load pixel coordinates for each patch; shape (num_sensors x num_sections)
-    coor_fpath = base_dir + '/images/patch_px_coords_small.pkl'
+    coor_fpath = base_dir + '/images/patch_px_coords.pkl'
 
     if not os.path.exists(img_fpath):
         rospy.logerr("Numpy pixel coordinates not available at %s.", coor_fpath)
@@ -97,10 +97,14 @@ class PDCvisualization:
     self.uss_sub = rospy.Subscriber('/uss_values', Int16MultiArray, self.callback, queue_size=1)
 
     # publish PDC visualization
-    self.pdc_pub = rospy.Publisher("pdc_visualization",Image, queue_size=1)
+    self.pdc_pub = rospy.Publisher("pdc_visualization",CompressedImage, queue_size=1)
     
     # info message n sensors detected 
     self.num_detected = None
+
+    # Create CompressedImage message
+    self.jpeg_msg = CompressedImage()
+    self.jpeg_msg.format = "jpeg"
     
   def visualize_pdc(self, data):
     
@@ -153,14 +157,19 @@ class PDCvisualization:
     if self.to_video:
       self.out.write(pdc_image)
 
-    # publish as image message
     if self.publish:
-      try:
-        self.image_message = self.bridge.cv2_to_imgmsg(pdc_image, encoding="bgr8")
-      except CvBridgeError as e:
-        print(e)
-      
-      self.pdc_pub.publish(self.image_message)
+        try:
+            
+            # Encode image as JPEG
+            _, img_encoded = cv2.imencode('.jpg', pdc_image)
+
+            self.jpeg_msg.header.stamp = rospy.Time.now()
+            self.jpeg_msg.data = np.array(img_encoded).tobytes()
+
+            self.pdc_pub.publish(self.jpeg_msg)
+
+        except Exception as e:
+            print(e)
     
     # show result live 
     if self.live:
