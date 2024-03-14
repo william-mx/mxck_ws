@@ -5,11 +5,11 @@ import numpy as np
 class ImageSubscriber:
     def __init__(self, host="localhost", port=5555):
 
-        self.address = f"tcp://{host}:{port}"
+        self.address = "tcp://{}:{}".format(host, port)
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(self.address)
-        self.socket.setsockopt_string(zmq.SUBSCRIBE, '')
+        self.socket.setsockopt_string(zmq.SUBSCRIBE, unicode(''))
 
         print("Subscribing to {}".format(self.address))
         
@@ -27,9 +27,9 @@ class ImageSubscriber:
 
             return timestamp, image
         except zmq.ZMQError as e:
-            print(f"ZMQ error occurred: {e}")
+            print("ZMQ error occurred: {}".format(e))
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print("An error occurred: {}".format(e))
 
     def close(self):
         self.socket.close()

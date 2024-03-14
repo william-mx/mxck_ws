@@ -1,9 +1,23 @@
 <launch>
-    <node name="realsense_image_publisher" pkg="realsense_stream" type="realsense_image_publisher.py" output="screen">
-        <param name="width" value="640" />
-        <param name="height" value="480" />
-        <param name="fps" value="15" />
-        <param name="port" value="5555" />
-        <param name="host" value="localhost" />
+
+    <arg name="stream_jpeg" default="true" />
+    <arg name="width" default="640" />
+    <arg name="height" default="480" />
+    <arg name="fps" default="15" />
+    <arg name="port" default="5555" />
+    <arg name="host" default="localhost" />
+
+    <node pkg="realsense_stream" name="realsense_image_publisher" type="realsense_image_publisher.py" output="screen">
+        <param name="width" value="$(arg width)" />
+        <param name="height" value="$(arg height)" />
+        <param name="fps" value="$(arg fps)" />
+        <param name="port" value="$(arg port)" />
+        <param name="host" value="$(arg host)" />
     </node>
+
+    <!-- Start the stream_ros_images.py node if stream_jpeg is true -->
+    <group if="$(arg stream_jpeg)">
+        <node pkg="realsense_stream" name="stream_ros_images" type="stream_ros_images.py" output="screen" respawn="true"/>
+    </group> 
+
 </launch>

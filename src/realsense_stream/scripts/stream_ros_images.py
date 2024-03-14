@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import rospy
 import sys
 import os
 import rospkg
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 from cv_bridge import CvBridge
 import numpy as np
 
@@ -22,19 +22,21 @@ def process_images(host, port):
     bridge = CvBridge()
 
     try:
-        # Initialize ROS publisher
-        image_pub = rospy.Publisher('/camera/image_raw', Image, queue_size=1)
+        # Initialize ROS publisher with CompressedImage message type
+        image_pub = rospy.Publisher('/camera/color/image_jpeg', CompressedImage, queue_size=1)
 
         while not rospy.is_shutdown():
             # Wait for an image frame from the subscriber
             timestamp, image = subscriber.wait_for_frame()
             ros_timestamp = rospy.Time.from_sec(timestamp)
 
-            # Convert the image to ROS Image message
-            image_msg = bridge.cv2_to_imgmsg(image, encoding="bgr8")
+            # Convert the image to JPEG compressed ROS Image message
+            image_msg = bridge.cv2_to_compressed_imgmsg(image, dst_format="jpg")
+
+            # Set timestamp
             image_msg.header.stamp = ros_timestamp
 
-            # Publish the image
+            # Publish the compressed image
             image_pub.publish(image_msg)
 
     except rospy.ROSInterruptException:
