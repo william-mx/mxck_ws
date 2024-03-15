@@ -36,7 +36,7 @@ We've made a script called `startup_mxck.sh`. The `startup_mxck.sh` script is lo
 
 `sudo nmcli dev wifi hotspot ifname wlan0 ssid mxck0000 password mxck0000`: This command sets up a hotspot on the MXCarKit with the SSID `mxck0000` and password `mxck0000`. You'll need to customize the ID (e.g., change `0000` to match your specific MXcarKit ID, such as `0016`). The default IP address of the MXCarKit when running as a hotspot is `10.42.0.1`. Once connected to the hotspot, the car kit will be visible at this IP address.
 
-The second command opens a new terminal and executes the `/home/mxck/mxck_ws/mxck_base/run_ros_docker.sh 'true'` command. The `run_ros_docker.sh` script initiates a ROS Docker container within our MXcarKit's mxck_base workspace. The 'true' flag tells the script that an Entrypoint shell script should be executed when the container is launched.
+The second command opens a new terminal and executes the `/home/mxck/mxck_ws/mxck_base/run_ros_docker.sh 'true'` command. The `run_ros_docker.sh` script initiates a ROS Docker container within our MXcarKit's mxck_base workspace. The `true` flag tells the script that an Entrypoint shell script should be executed when the container is launched.
 
 To ensure the `startup_mxck.sh` script executes immediately when the car kit starts, follow these three steps:
 
