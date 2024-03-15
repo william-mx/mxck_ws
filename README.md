@@ -85,7 +85,7 @@ In the `mxck_run.launch` file, the arguments `run_micro:=true`, `run_foxglove:=t
 
 - **`run_camera:=true`** turns on the camera for live video streaming.
 
-- **`run_motors:=false`** keeps the motors off by default for safety, preventing the car kit from moving unexpectedly at startup.
+- **`run_motors:=false`** keeps the motors off by default for safety, preventing the MXcarkit from moving unexpectedly at startup.
 
 Each argument toggles a specific feature of the car kit, directly affecting what capabilities are available immediately after the system boots.
 
