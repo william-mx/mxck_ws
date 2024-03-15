@@ -26,7 +26,7 @@ source $MXCK_SH
 # run command
 if [ "$1" = "true" ];
 then
-  roslaunch mxck_run mxck_run.launch run_micro:=true run_foxglove:=true
+  roslaunch mxck_run mxck_run.launch run_micro:=true run_foxglove:=true run_camera:=true run_motors:=false
 else
   bash
 fi;
