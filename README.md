@@ -53,7 +53,7 @@ To ensure the `startup_mxck.sh` script executes immediately when the car kit sta
 This line allows the mxck user to execute any command as sudo without being prompted for a password, ensuring the script can run automatically.
 
 
-Before rebooting the Jetson and testing our `startup_mxck.sh` script, we want to understand which ROS nodes run when we start the `run_ros_docker.sh` script with the `true` argument. First, we look at the Dockerfile in our repository [https://github.com/william-mx/mxck_ws](https://github.com/william-mx/mxck_ws). These three lines in the Dockerfile:
+Before rebooting the Jetson and testing our `startup_mxck.sh` script, we want to understand which ROS nodes run when we start the `run_ros_docker.sh` script with the `true` argument. First, we look at the Dockerfile in our repository [https://github.com/william-mx/mxck_ws](https://github.com/william-mx/mxck_ws).
 
 ```
 COPY ./autorun.sh /
