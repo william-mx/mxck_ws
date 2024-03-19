@@ -32,6 +32,8 @@ Open another terminal and connect to the docker container.
 
 ## Automating MXCarKit Setup: Quick Start and Configuration Guide
 
+<img src="src/mxck_run/images/autorun_flowchart.png" title="Autorun" width="1000">
+
 We've made a script called `startup_mxck.sh`. The `startup_mxck.sh` script is located in our repository at [https://github.com/william-mx/MXcarkit](https://github.com/william-mx/MXcarkit) and is automatically copied to the `/home/mxck/mxck_ws` directory when the `initial_setup.sh` script is executed. If for some reason this doesn't happen, you should manually copy it to the directory. It helps your computer connect to the MXCarKit right away when it starts. This script sets up a hotspot for connecting to the MXcarkit and starts basic programs like Foxglove to stream data live. This script contains two commands:
 
 `sudo nmcli dev wifi hotspot ifname wlan0 ssid mxck0000 password mxck0000`: This command sets up a hotspot on the MXCarKit with the SSID `mxck0000` and password `mxck0000`. You'll need to customize the ID (e.g., change `0000` to match your specific MXcarKit ID, such as `0016`). The default IP address of the MXCarKit when running as a hotspot is `10.42.0.1`. Once connected to the hotspot, the car kit will be visible at this IP address.
