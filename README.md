@@ -166,3 +166,67 @@ roslaunch mxck_run mxck_run.launch run_camera:=true run_foxglove:=false
 When running the Foxglove node, a UDP port is passed as an argument. By default this port has the value ```8765``` but you can also specify a different value. On the Jetson, we simply open the [Web Console](https://studio.foxglove.dev), click open connection, and enter ```ws://localhost:8765``` as the WebSocket URL.
 
 On another computer, we first need to make sure that the Jeston and the computer are on the same Wi-Fi network. Then we have to find out the IP address of the Jetson (e.g. 192.168.178.39) using ```ifconfig```. Then we open Foxglove Studio on our computer, click on open connection, and enter ```ws://192.168.178.39:8765``` as the WebSocket URL.
+
+## Accessing the MXcarkit: Connection Guide
+
+There are several ways to connect to the **MXcarkit** or more precisely, to the **Nvidia Jetson**. All possibilities are depicted in the flowchart. You can connect wirelessly by setting up a **Hotspot** on the Jetson or, if **Internet** access is available, by connecting both the Jetson and your computer to the same network. A special case for **Remote Access** to the carkit, for example, from home, is using **Dataplicity** to forward the ports to your local computer. Additionally, you can use various wired connections by either connecting a screen via **HDMI or Display Port (DP)** along with a mouse and keyboard directly to the Jetson, or by connecting your laptop via **Ethernet** or **USB serial cable** to the Jetson.
+
+<img src="src/mxck_run/images/mxck_connections_gray.jpg" title="Connections" width="800">
+
+### Choosing the Right Connection
+First, decide whether you want to work directly with the **MXcarkit** or access it remotely from another location, such as from home. If you're working directly with the vehicle, determine whether it will be driving around or set up stationary on a desk. 
+
+### Wireless Connections
+
+If the vehicle is moving, a **wireless connection** is required. If you have an **Internet connection**, connect both the MXcarkit and your laptop to the same network. This setup enables you to control the MXcarkit via **Terminal**, stream and visualize data using **Foxglove**, and access the **Ubuntu Desktop** through **VNC** or **NoMachine** (as long as a dummy HDMI is connected to simulate a display on the Nvidia).
+
+
+If there is no internet connection, such as in an underground car park or outdoors, you can set up a **Hotspot** on the Nvidia Jetson and connect your notebook to this hotspot. This configuration also supports using Foxglove, terminal, and the desktop GUI via the same methods. A special case of a wireless connection occurs when you need **Remote Access**, such as when you are not on the same network as the MXcarkit, for example, when you are at home. In this scenario, you can use tools like **Dataplicity** for port forwarding. Once connected, you can forward the ports for Foxglove `(8765)`, SSH `(22)`, and NoMachine `(4000)` to your laptop at home to access the MXcarkit remotely.
+
+### Wired Connections
+If you opt for a stationary **Desk setup** where the vehicle does not move, a wired connection is preferable. The simplest and most intuitive option is to connect a monitor via **HDMI** or **DisplayPort** and interface with the Nvidia using a mouse and keyboard. Another option is to connect the MXcarkit to your laptop via **Ethernet**. This method, similar to wireless connections, supports using Foxglove and streaming the desktop via VNC or NoMachine. The advantage of a wired connection is that it provides faster data transmission with less latency. Finally, a **USB cable** can be used for a serial connection, which allows SSH access but does not support applications like Foxglove or the Ubuntu Desktop GUI.
+
+## Setup Guide
+In the next section, we will explain how to set up all these connections properly.
+
+### Ethernet
+
+Setting a `static IP` for your `Jetson` is essential when connecting it directly to your laptop via `Ethernet`. This ensures consistent access to the Jetson, as its IP address will not change over time. To set a static IP using the `Desktop GUI`, open `Network Settings` by clicking on the network icon in the system tray and selecting "Settings" or "Network Settings." Select the `wired connection` (e.g., Wired Connected) to configure it. Click the gear icon or "Edit" button to open the settings for this connection. Under the `IPv4` tab, change the method from `Automatic (DHCP)` to `Manual`. Add your `static IP address`, `netmask`, and `gateway` (e.g., Address: `192.168.1.1`, Netmask: 255.255.255.0, Gateway: 192.168.1.1). Finally, save and apply the changes. Once connected vie ethernet cable, the MXcarkit will be accessible at this IP address.
+
+### Hotspot
+
+If you want to set up a hotspot on the Jetson, you can either use the Desktop User Interface to change the settings or run the following command:
+
+```bash
+sudo nmcli dev wifi hotspot ifname wlan0 ssid mxck0000 password mxck0000
+```
+
+This command creates a hotspot on the MXcarkit with the SSID `mxck0000` and password `mxck0000`. Be sure to customize the ID by changing `0000` to match your specific MXcarkit, such as `0016`. When the MXcarkit is running as a hotspot, its default IP address is `10.42.0.1`. Once connected to the hotspot, the MXcarkit will be accessible at this IP address.
+
+
+### Remote Access (Dataplicity)
+
+If you want to **remote access** your MXcarkit over the internet from home, you need to forward the necessary ports. We use **Dataplicity** for this purpose. Go to [Dataplicity](https://www.dataplicity.com/app/) and log in with your email address. Click on **Add Device**. You will be prompted to enter a command similar to the following in your Jetson terminal:
+
+```bash
+curl -s https://www.dataplicity.com/xxx5v5oc.py | sudo python
+```
+
+This command installs Dataplicity on your Jetson and registers it as a device. To access the Jetson from home, you need to install **Dataplicity Porthole** on your computer, which is currently supported only for Mac and Windows. You can download it [here](https://www.dataplicity.com/apps/porthole/). After installing Porthole, open the app and select your newly connected Jetson device. You can then forward the following ports to your laptop: **Foxglove** `(8765)`, **SSH** `(22)`, and **NoMachine** `(4000)`. For further assistance, check this example: [Remote Desktop via Porthole](https://docs.dataplicity.com/docs/remote-desktop-via-porthole).
+
+### Internet
+
+You can connect to your MXcarkit over the internet by ensuring that both the Jetson and your computer are connected to the same network. First, check the IP address of the Jetson using the `ifconfig` command. Look for the `wlan0` entry and copy the IP address (for example, `100.83.217.105`).
+
+On your computer, you can test the connection to the Jetson by using the command `ping 100.83.217.105`. If your computer receives a response, this means you can access the Jetson over SSH. To do this, use the command `ssh mxck@100.83.217.105`. Ensure that `mxck` is your correct hostname; you can verify your hostname by running the `hostname` command in the Jetson terminal.
+
+### USB Connection
+
+To connect to your MXcarkit via USB, use a USB cable to connect the Jetson to your computer. Once connected, you can access the Jetson using SSH with the command:
+
+```bash
+ssh username@hostname
+```
+
+By default, the username is set to `mxck`, and the hostname is also set to `mxck`. If you’re unsure about the hostname, you can verify it by running the `hostname` command in the Jetson terminal. To check the username, you can use the command `whoami`, which will display the current username logged into the system.
+
