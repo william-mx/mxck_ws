@@ -41,6 +41,7 @@
   /yolo/results,
   /tf_static,
   /marker_pointcloud,
+  /pointcloud,
   /ackermann_odometry,
   /rs_imu_odometry,
   /imu_odometry,
