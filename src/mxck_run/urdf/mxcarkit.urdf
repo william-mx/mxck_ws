@@ -1,5 +1,9 @@
 <robot name="mxcarkit">
-  
+
+  <!-- Default ROS orientation: (x-forward, y-left, z-up). 
+      RPY rotations are applied sequentially, with each previous rotation 
+      affecting the subsequent rotation's axis. -->
+
   <!-- Base link (Rear Axle)-->
   <link name="base_link">
     <visual>
@@ -28,7 +32,7 @@
   </joint>
 
   <!-- Lidar link -->
-  <link name="lidar_link_1">
+  <link name="laser">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
@@ -38,14 +42,14 @@
   </link>
   <!-- Lidar joint -->
   <joint name="lidar_joint" type="fixed">
-    <origin xyz="0.1915 0 0.0865" rpy="0 0 0"/>
+    <origin xyz="0.1915 0 0.0865" rpy="0 0 3.1415"/>
     <parent link="base_link"/>
-    <child link="lidar_link_1"/>
+    <child link="laser"/>
     <axis xyz="0 0 1"/>
   </joint>
 
   <!-- Camera link -->
-  <link name="camera_link_1">
+  <link name="camera_rgb">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
@@ -55,9 +59,9 @@
   </link>
   <!-- Camera joint -->
   <joint name="camera_joint" type="fixed">
-    <origin xyz="0.19 0 0.116" rpy="0 0 0"/>
+    <origin xyz="0.19 0.06 0.116" rpy="-1.5708 0 -1.5708"/>
     <parent link="base_link"/>
-    <child link="camera_link_1"/>
+    <child link="camera_rgb"/>
   </joint>
 
   <!-- USS_SRF link -->
