@@ -11,7 +11,7 @@ from foxglove_msgs.msg import ImageMarkerArray
 from visualization_msgs.msg import ImageMarker
 from sensor_msgs.msg import CompressedImage, PointCloud2
 from tf.transformations import quaternion_matrix
-
+from ackermann_msgs.msg import AckermannDriveStamped
 
 def crateColorRGBA(color=None):
     """
@@ -474,44 +474,58 @@ def createCompressedImageMessage(cv_image, timestamp=None):
 
 def map_cartesian_to_vehicle_frame(waypoints):
     """
-    This function changes the waypoints representing positions on the ground from the Cartesian coordinate system to the vehicle's coordinate system.
-    It's specifically meant for points that are relevant to the vehicle's movement, like the paths or lane markings.
-    The transformation is achieved by rotating these points 90 degrees counterclockwise to align them with how the vehicle perceives its environment.
+    This function changes the waypoints representing positions (and optionally orientations) from the Cartesian coordinate system
+    to the vehicle's coordinate system. It supports both waypoints with positions and angles, and points with just positions.
 
     In the Cartesian coordinate system: (x-right, y-forward, z-ignored)
     In the vehicle coordinate system: (x-forward, y-left, z-ignored)
+    
+    The transformation involves a 90-degree counterclockwise rotation.
 
     Args:
-        waypoints (np.ndarray): An N x 3 array where each row represents [x, y, theta]
-                                in the Cartesian frame.
+        waypoints (np.ndarray): Either:
+                                - An N x 3 array where each row represents [x, y, theta] in the Cartesian frame, 
+                                  or
+                                - An N x 2 array where each row represents [x, y] (without angles).
 
     Returns:
-        np.ndarray: An N x 3 array of transformed waypoints [x', y', theta']
-                    in the vehicle frame.
+        np.ndarray: 
+            - If waypoints are N x 3, returns an N x 3 array of transformed waypoints [x', y', theta'] 
+              in the vehicle frame.
+            - If waypoints are N x 2, returns an N x 2 array of transformed positions [x', y'] 
+              in the vehicle frame.
     """
-    # Rotation matrix to transform from Cartesian to vehicle frame
-    # 90 degree counterclockwise rotation
+    # Rotation matrix to transform from Cartesian to vehicle frame (90 degrees counterclockwise)
     R = np.array([[0, 1], [-1, 0]])
 
-    # Separate positions and angles
-    xy = waypoints[:, :2]  # x and y
-    angles = waypoints[:, 2]  # theta
+    if waypoints.shape[1] == 3:  # Handling waypoints with angles (N x 3)
+        # Separate positions and angles
+        xy = waypoints[:, :2]  # x and y
+        angles = waypoints[:, 2]  # theta
 
-    # Transform positions
-    transformed_xy = (R @ xy.T).T  # (N, 2)
+        # Transform positions
+        transformed_xy = (R @ xy.T).T  # (N, 2)
 
-    # Compute headings for transformation
-    headings = np.array([np.cos(angles), np.sin(angles)])  # (2, N)
-    transformed_heading = R @ headings  # (2, N)
-    x, y = transformed_heading  # (N,)
+        # Compute headings for transformation
+        headings = np.array([np.cos(angles), np.sin(angles)])  # (2, N)
+        transformed_heading = R @ headings  # (2, N)
+        x, y = transformed_heading  # (N,)
 
-    # Transform angles
-    transformed_angles = np.arctan2(y, x)  # (N,)
+        # Transform angles
+        transformed_angles = np.arctan2(y, x)  # (N,)
 
-    # Combine transformed positions and angles
-    transformed_waypoints = np.column_stack((transformed_xy, transformed_angles)) # (N,3)
+        # Combine transformed positions and angles
+        transformed_waypoints = np.column_stack((transformed_xy, transformed_angles))  # (N, 3)
+        return transformed_waypoints
+    
+    elif waypoints.shape[1] == 2:  # Handling just positions (N x 2)
+        # Transform positions
+        transformed_xy = (R @ waypoints.T).T  # (N, 2)
+        return transformed_xy
 
-    return transformed_waypoints
+    else:
+        raise ValueError("Input waypoints should be either N x 2 or N x 3.")
+
 
 
 def getRelativTransform(source_frame: str, target_frame: str) -> np.ndarray:
@@ -558,6 +572,38 @@ def getRelativTransform(source_frame: str, target_frame: str) -> np.ndarray:
         rospy.logerr(f"Could not transform between {source_frame} and {target_frame}: {str(e)}")
         return None
 
+
+
+def createAckermannMessage(steering_angle, speed, timestamp=None):
+    """
+    Creates an AckermannDriveStamped message with the specified steering angle and speed.
+
+    Parameters:
+    ----------
+    steering_angle : float
+        The steering angle in radians to be set in the Ackermann message.
+        
+    speed : float
+        The speed in meters per second to be set in the Ackermann message.
+
+    timestamp : rospy.Time, optional
+        The timestamp to be used for the message header. If not provided, the current ROS time will be used.
+    
+    Returns:
+    -------
+    AckermannDriveStamped
+        A ROS message containing the Ackermann steering angle, speed, and a timestamped header.
+    """
+    
+    # Create AckermannDriveStamped message
+    ack_msg = AckermannDriveStamped()
+
+    # Set the steering angle and speed
+    ack_msg.drive.steering_angle = steering_angle
+    ack_msg.drive.speed = speed
+    ack_msg.header.stamp = timestamp if timestamp is not None else rospy.Time.now()
+
+    return ack_msg
 
 
 if __name__ == '__main__':
