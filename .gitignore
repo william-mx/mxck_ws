@@ -6,3 +6,4 @@
 # ignore bagfiles
 src/mxck_run/bagfiles/*
 !src/mxck_run/bagfiles/.gitkeep
+*.bag

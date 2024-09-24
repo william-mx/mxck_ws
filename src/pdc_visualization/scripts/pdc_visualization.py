@@ -3,35 +3,15 @@
 import rospy
 from std_msgs.msg import Int16MultiArray
 from sensor_msgs.msg import CompressedImage
-from cv_bridge import CvBridge, CvBridgeError
+from cv_bridge import CvBridge
 import cv2
 import rospkg
 import numpy as np
 import os
-from datetime import datetime
 
 class PDCvisualization:
 
   def __init__(self):
-
-    # init output
-    self.to_video = self.publish = self.live = False
-
-    self.output_types = [ 'to_video', # save result as video
-                          'publish',  # publish result as image message
-                          'live']     # show result live
-    
-    # get param, optionally pass in a default value to use if the parameter is not set
-    output_type = rospy.get_param("pdc_output_type", 'live')
-	
-    
-    # check parameter
-    if not output_type in self.output_types:
-      rospy.logerr('Invalid pdc output parmater. Choose between %s, %s and %s.' 
-      % tuple(self.output_types))
-    else:
-      self.__dict__[output_type] = True  
-      rospy.loginfo("output_type: %s", output_type)
 
     # base directory 
     r = rospkg.RosPack()
@@ -46,28 +26,13 @@ class PDCvisualization:
     self.pdc_template = cv2.imread(img_fpath)
 
     # store shape
-    height, width, layers = self.pdc_template.shape
+    height, width, _ = self.pdc_template.shape
     self.size = (width,height)
-
-    # save result as video
-    results_dir = base_dir + '/results'
-    
-    if not os.path.exists(results_dir) and self.to_video:
-      os.mkdir(results_dir)
-    
-    self.fps = 50 # check frquency with rostopic hz /uss_values
-    
-    if self.to_video:
-      self.result_fname = results_dir + "/result_{:%Y_%m_%d_%H_%M_%S}.avi".format(datetime.now())
-      self.out = cv2.VideoWriter(self.result_fname,cv2.VideoWriter_fourcc(*'MJPG'), self.fps, self.size)
-    
-    if self.live:
-      cv2.namedWindow("PDC Visualization", cv2.WND_PROP_FULLSCREEN)
 
     # load pixel coordinates for each patch; shape (num_sensors x num_sections)
     coor_fpath = base_dir + '/images/patch_px_coords.pkl'
 
-    if not os.path.exists(img_fpath):
+    if not os.path.exists(coor_fpath):
         rospy.logerr("Numpy pixel coordinates not available at %s.", coor_fpath)
 
     self.patch_px_coords = np.load(coor_fpath, allow_pickle=True, fix_imports=True)
@@ -141,46 +106,22 @@ class PDCvisualization:
 
     return pdc_image
 
-  def ctrl_shutdown(self):
-    '''controlled shutdown'''
-	
-    # close video
-    if pdc.to_video:
-      rospy.loginfo("Video is saved at %s", self.result_fname)
-      pdc.out.release()
-      
 
   def callback(self,data):
     pdc_image = self.visualize_pdc(data)
     
-    # save result as video
-    if self.to_video:
-      self.out.write(pdc_image)
+    try:
+        
+        # Encode image as JPEG
+        _, img_encoded = cv2.imencode('.jpg', pdc_image)
 
-    if self.publish:
-        try:
-            
-            # Encode image as JPEG
-            _, img_encoded = cv2.imencode('.jpg', pdc_image)
+        self.jpeg_msg.header.stamp = rospy.Time.now()
+        self.jpeg_msg.data = np.array(img_encoded).tobytes()
 
-            self.jpeg_msg.header.stamp = rospy.Time.now()
-            self.jpeg_msg.data = np.array(img_encoded).tobytes()
+        self.pdc_pub.publish(self.jpeg_msg)
 
-            self.pdc_pub.publish(self.jpeg_msg)
-
-        except Exception as e:
-            print(e)
-    
-    # show result live 
-    if self.live:
-      try:
-         cv2.imshow("PDC Visualization", pdc_image)
-         cv2.waitKey(int(1000/self.fps)) # ms
-      except:
-         pass
-
-    
-
+    except Exception as e:
+        print(e)
 
 if __name__ == '__main__':
 
@@ -192,6 +133,5 @@ if __name__ == '__main__':
   while not rospy.is_shutdown():
     pass
 
-  pdc.ctrl_shutdown()
     
 
