@@ -39,6 +39,11 @@
   /autonomous/ackermann_cmd,
   /yolo/results,
   /tf_static,
+  /marker_pointcloud,
+  /ackermann_odometry,
+  /rs_imu_odometry,
+  /imu_odometry,
+  /ground_truth_odometry,
   ]" />
 
   <!--tf-->
