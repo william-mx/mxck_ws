@@ -1,6 +1,6 @@
 FROM mxwilliam/mxck:mxck-noetic-perception-l4t-35.2.1
 
-Upgrade pip and install Python packages
+# Upgrade pip and install Python packages
 RUN python3 -m pip install \
     gdown
 
