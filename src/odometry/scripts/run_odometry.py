@@ -36,10 +36,10 @@ class OdometryNode():
         self.imu_subscriber = rospy.Subscriber("/imu_calibrated", Imu, self.imu_callback)
         
 
-        self.ack_pub = rospy.Publisher('ack_odometry', Path, queue_size=1)
+        self.ack_pub = rospy.Publisher('ackermann_odometry', Path, queue_size=1)
         self.rs_imu_pub = rospy.Publisher('rs_imu_odometry', Path, queue_size=1)
         self.imu_pub = rospy.Publisher('imu_odometry', Path, queue_size=1)
-        self.gt_pub = rospy.Publisher('gt_odometry', Path, queue_size=1, latch=True)
+        self.gt_pub = rospy.Publisher('ground_truth_odometry', Path, queue_size=1, latch=True)
 
 
         if not ground_truth_trajectory is None:
