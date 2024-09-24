@@ -8,12 +8,16 @@ RUN apt update \
  && apt install --yes \
     ros-$ROS_DISTRO-ackermann-msgs \
     ros-$ROS_DISTRO-foxglove-msgs \
-    ros-$ROS_DISTRO-vision-opencv
+    ros-$ROS_DISTRO-vision-opencv \
+    ros-$ROS_DISTRO-tf \
+    ros-$ROS_DISTRO-tf2-ros
 
 # Install Python packages
 RUN apt update \
  && python3 -m pip install \
-    pyrealsense2
+ && python3 -m pip install \
+    pyrealsense2 \
+    scikit-image
 
 # Install Ultralytics
 # See https://github.com/ultralytics/ultralytics/blob/main/docker/Dockerfile-jetson
