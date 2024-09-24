@@ -7,4 +7,4 @@ COPY ./autorun.sh /
 ENTRYPOINT ["./autorun.sh"]
 CMD ["false"]
 
-WORKDIR ./melodic_ws
+WORKDIR /melodic_ws
