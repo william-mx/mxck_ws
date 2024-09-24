@@ -11,3 +11,4 @@ src/object_detection/models/*
 # ignore bagfiles
 src/lane_detection/bagfiles/*.bag
 !src/lane_detection/bagfiles/download_bagfile.sh
+*.bag
