@@ -6,6 +6,7 @@
   <arg name="run_lidar" default="false" /> 
   <arg name="run_micro" default="false" /> <!--microcontroller: us, lights, imu, rc-->
   <arg name="run_pdc" default="false" /> <!--pdc visualization-->
+  <arg name="pdc_type" default="pointcloud" /> <!--pointcloud or plot-->
   <arg name="run_imu" default="false" /> <!--calibrate and filter imu data-->
   <arg name="run_rs_imu" default="false" /> <!--publish realsense imu-->
   <arg name="run_foxglove" default="false" /> <!--stream data using foxglove-->
@@ -114,7 +115,15 @@
 
   <!--pdc visualization-->
   <group if="$(arg run_pdc)">
-    <include file="$(find pdc_visualization)/launch/pdc_visualization.launch" />
+
+    <group if="$(eval arg('pdc_type') == 'pointcloud')">
+      <node pkg="pdc_visualization" name="pdc_pointcloud" type="pdc_pointcloud.py" output="screen" respawn="true"/>
+    </group>
+
+    <group if="$(eval arg('pdc_type') == 'plot')">
+      <node pkg="pdc_visualization" name="pdc_visualization" type="pdc_visualization.py" output="screen" respawn="true"/>
+    </group>
+
   </group>
 
 
