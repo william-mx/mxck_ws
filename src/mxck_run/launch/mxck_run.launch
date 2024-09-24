@@ -53,15 +53,24 @@
 
     <!--ros image-->
     <group if="$(eval arg('stream_via') == 'realsense_camera')">
-      <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+      <rosparam> <!--dynamic params-->
+        /camera/rgb_camera/enable_auto_white_balance: true
+        /camera/rgb_camera/enable_auto_exposure: false
+        /camera/rgb_camera/auto_exposure_priority: false
+      </rosparam>
+      
+      <!--ros image-->
+      <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="color_width" value="320"/> <!--static params-->
         <arg name="color_height" value="180"/>
         <arg name="color_fps" value="6"/>
         <arg name="enable_confidence" value="False"/>
         <arg name="enable_depth" value="False"/>
+        <arg name="enable_infra1" value="False"/>
+        <arg name="enable_infra2" value="False"/>
       </include>
-    </group>  
-	
+    </group>
+
     <!--jpeg stream-->
     <group if="$(eval arg('stream_via') == 'pyrealsense')">
       <include file="$(find realsense_stream)/launch/jpeg_publisher.launch">
