@@ -15,7 +15,6 @@ RUN apt update \
 # Install Python packages
 RUN apt update \
  && python3 -m pip install \
- && python3 -m pip install \
     pyrealsense2 \
     scikit-image
 
