@@ -32,6 +32,7 @@ sudo docker run -it --rm \
 --runtime nvidia \
 --mount type=bind,source=$BASE_DIR,target=/noetic_ws \
 --mount type=bind,source=$BASE_DIR/ros_entrypoint.sh,target=/ros_entrypoint.sh \
+--mount type=bind,source=$BASE_DIR/autorun.sh,target=/autorun.sh \
 --mount type=bind,source=/dev,target=/dev \
 --env="DISPLAY" \
 --env="QT_X11_NO_MITSHM=1" \
