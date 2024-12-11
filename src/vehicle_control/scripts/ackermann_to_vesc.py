@@ -9,6 +9,9 @@ import time
 
 class AckermannToVesc:
     def __init__(self, dynamic_update = False, interval = 10):
+
+	    self.control_type = rospy.get_param("control_type", 'rc')
+
         # Load configuration parameters for mapping and mode settings
         self.load_params()
 
@@ -35,7 +38,10 @@ class AckermannToVesc:
         self.ad_sub = None
         
         # Joystick subscriber for mode updates
-        self.joy_sub = rospy.Subscriber('/rc/joy', Joy, self.update_mode)
+        if self.control_type == 'rc':
+            self.joy_sub = rospy.Subscriber('/rc/joy', Joy, self.update_mode)
+        elif self.control_type == 'joy':
+            self.joy_sub = rospy.Subscriber('/joy', Joy, self.update_mode)
 
         # Publishers for motor speed and servo position
         self.erpm_pub = rospy.Publisher('/commands/motor/speed', Float64, queue_size=1)
@@ -148,12 +154,24 @@ class AckermannToVesc:
         
         self.speed_to_erpm_gain = rospy.get_param("/speed_to_erpm_gain")
         self.steer_to_servo_gain = rospy.get_param("/steer_to_servo_gain")
+ 
+        if self.control_type == 'rc':
+            self.dead_val = rospy.get_param("/rc_dead_value")  # Deadman switch
+            self.auto_val = rospy.get_param("/rc_auto_value")  # Drive autonomously
+            self.manu_val = rospy.get_param("/rc_manu_value")  # Drive manually
+	    
+            self.mode_btn = rospy.get_param("/rc_mode_button")
+
+        elif self.control_type == 'joy':
+            self.dead_val = rospy.get_param("/joy_dead_value")  # Deadman switch
+            self.auto_val = rospy.get_param("/joy_auto_value")  # Drive autonomously
+            self.manu_val = rospy.get_param("/joy_manu_value")  # Drive manually
+
+            self.mode_btn = rospy.get_param("/joy_mode_button")
+
+
         
-        self.dead_val = rospy.get_param("/rc_dead_value")  # Deadman switch
-        self.auto_val = rospy.get_param("/rc_auto_value")  # Drive autonomously
-        self.manu_val = rospy.get_param("/rc_manu_value")  # Drive manually
         
-        self.mode_btn = rospy.get_param("/rc_mode_button")
 
 if __name__ == '__main__':
     rospy.init_node('ackermann_to_vesc', anonymous=True)

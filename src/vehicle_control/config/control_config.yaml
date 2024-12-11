@@ -17,13 +17,17 @@ rc_speed_axis: 1        # Index for speed axis in JOY message
 rc_steering_axis: 0     # Index for steering axis in JOY message
 rc_mode_button: 0       # Index for mode button in JOY message
 
+joy_speed_axis: 4        # Index for speed axis in JOY message
+joy_steering_axis: 3     # Index for steering axis in JOY message
+joy_mode_button: 4       # Index for mode button in JOY message
+
 ### JOY to Ackermann Configuration ###
 # +/- maximum steering angle in radians
 steering_angle_max: 0.44  # Maximum steering angle in radians (+/-)
 
 # Speed limits in meters per second (m/s)
 speed_min: -2.0  # Minimum speed, represents maximum reverse speed in m/s
-speed_max: 5.0   # Maximum speed, represents maximum forward speed in m/s
+speed_max: 2.0   # Maximum speed, represents maximum forward speed in m/s
 
 ### Ackermann to VESC Configuration ###
 # Servo values (/commands/servo/position) ranging from 0 to 1
@@ -38,7 +42,7 @@ servo_mid: 0.502  # Mid servo position, represents neutral steering position
 # It's crucial to use the same minimum ERPM value here to ensure consistency.
 # The MXcarKit applies brakes when the ERPM falls below this minimum value.
 # Additionally, engaging the deadman switch will trigger braking.
-erpm_min: 1200
+erpm_min: 700
 
 # VESC braking current in Ampere
 brake_amps: -20.0
@@ -56,3 +60,8 @@ speed_to_erpm_gain: 3786  # Gain for converting speed to ERPM
 rc_dead_value: 0  # Don't drive
 rc_auto_value: 1  # Drive autonomously
 rc_manu_value: 2  # Drive manually
+
+joy_dead_value: 0  # Don't drive
+joy_manu_value: 1  # Drive manually
+joy_auto_value: 2  # Drive autonomously (not enabled in joy mode)
+
