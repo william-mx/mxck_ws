@@ -70,11 +70,21 @@ class JoyControl:
 
         steer_max = rospy.get_param("/steering_angle_max")
 
-        speed_min = rospy.get_param("/speed_min")
-        speed_max = rospy.get_param("/speed_max")
-    
+        max_backward_speed = rospy.get_param("/max_backward_speed")
+        max_forward_speed = rospy.get_param("/max_forward_speed")
+
+        # erpm = speed_to_erpm_gain * speed (in m/s)
+        # speed = erpm / speed_to_erpm_gain
+        erpm_min = rospy.get_param("/erpm_min")
+        speed_to_erpm_gain = rospy.get_param("/speed_to_erpm_gain")
+        speed_min = erpm_min / speed_to_erpm_gain
+
+        joy_deadzone = rospy.get_param("/joy_deadzone")
+
+        eps = np.finfo(np.float32).eps
         self.steer_mapping = get_interp((-1.0, 0.0, 1.0), (-steer_max, 0, steer_max))
-        self.speed_mapping = get_interp((-1.0, 0.0, 1.0), (speed_min, 0, speed_max))
+        self.speed_mapping = get_interp((-1.0, -joy_deadzone, -joy_deadzone + eps, joy_deadzone - eps, joy_deadzone, 1.0), \
+                                        (max_backward_speed, -speed_min, 0.0, 0.0, speed_min, max_forward_speed))
         
 if __name__ == '__main__':
 

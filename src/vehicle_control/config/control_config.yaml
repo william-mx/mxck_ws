@@ -26,8 +26,8 @@ joy_mode_button: 4       # Index for mode button in JOY message
 steering_angle_max: 0.44  # Maximum steering angle in radians (+/-)
 
 # Speed limits in meters per second (m/s)
-speed_min: -2.0  # Minimum speed, represents maximum reverse speed in m/s
-speed_max: 2.0   # Maximum speed, represents maximum forward speed in m/s
+max_backward_speed: -2.0  # Minimum speed, represents maximum reverse speed in m/s
+max_forward_speed: 2.0   # Maximum speed, represents maximum forward speed in m/s
 
 ### Ackermann to VESC Configuration ###
 # Servo values (/commands/servo/position) ranging from 0 to 1
@@ -64,4 +64,6 @@ rc_manu_value: 2  # Drive manually
 joy_dead_value: 0  # Don't drive
 joy_manu_value: 1  # Drive manually
 joy_auto_value: 2  # Drive autonomously (not enabled in joy mode)
+
+joy_deadzone: 0.03  # Ignore noise; controller doesn't react below this value
 

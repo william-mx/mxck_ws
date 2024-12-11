@@ -28,6 +28,7 @@
 	<group if="$(eval arg('control_type') == 'joy')">
 		<node pkg="joy" type="joy_node" name="joy_node" output="screen">
 			<param name="dev" value="$(arg joy_port)" />
+			<param name="autorepeat_rate" value="30.0" />
 		</node>
 	</group>
     

@@ -10,7 +10,7 @@ import time
 class AckermannToVesc:
     def __init__(self, dynamic_update = False, interval = 10):
 
-	    self.control_type = rospy.get_param("control_type", 'rc')
+        self.control_type = rospy.get_param("control_type", 'rc')
 
         # Load configuration parameters for mapping and mode settings
         self.load_params()
