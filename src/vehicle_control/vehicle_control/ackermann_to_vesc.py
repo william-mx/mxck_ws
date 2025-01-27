@@ -1,116 +1,208 @@
+#!/usr/bin/env python3
+
 import rclpy
 from rclpy.node import Node
+import numpy as np
 from ackermann_msgs.msg import AckermannDriveStamped
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64
-from math import atan
+import time
 
 class AckermannToVesc(Node):
     def __init__(self):
         super().__init__('ackermann_to_vesc')
         
+        # Declare required parameters without defaults
+        self.declare_parameters(
+            namespace='',
+            parameters=[
+                ('control_type', 'rc'),
+                ('servo_mid', rclpy.Parameter.Type.DOUBLE),
+                ('servo_max', rclpy.Parameter.Type.DOUBLE),
+                ('servo_min', rclpy.Parameter.Type.DOUBLE),
+                ('erpm_min', rclpy.Parameter.Type.INTEGER),
+                ('brake_amps', rclpy.Parameter.Type.DOUBLE),
+                ('speed_to_erpm_gain', rclpy.Parameter.Type.INTEGER),
+                ('steer_to_servo_gain', rclpy.Parameter.Type.DOUBLE),
+                ('rc_dead_value', rclpy.Parameter.Type.INTEGER),
+                ('rc_auto_value', rclpy.Parameter.Type.INTEGER),
+                ('rc_manu_value', rclpy.Parameter.Type.INTEGER),
+                ('rc_mode_button', rclpy.Parameter.Type.INTEGER),
+                ('joy_dead_value', rclpy.Parameter.Type.INTEGER),
+                ('joy_auto_value', rclpy.Parameter.Type.INTEGER),
+                ('joy_manu_value', rclpy.Parameter.Type.INTEGER),
+                ('joy_mode_button', rclpy.Parameter.Type.INTEGER)
+            ]
+        )
+
+        
+        
         self.load_params()
-
-        self.mode = self.dead_val
-
-        self.init_mapping_function()
-
+        
+        # Initialize mode as None indicating no mode is set initially
+        self.mode = None
+        
+        # Initialize messages for publishing speed and servo position
         self.erpm_msg = Float64()
         self.servo_msg = Float64()
-
-        self.rc_sub = self.create_subscription(AckermannDriveStamped, '/rc/ackermann_cmd', lambda x: self.callback(x, self.manu_val), 10)
-        self.ad_sub = self.create_subscription(AckermannDriveStamped, '/autonomous/ackermann_cmd', lambda x: self.callback(x, self.auto_val), 10)
-        self.joy_sub = self.create_subscription(Joy, '/rc/joy', self.deadman_callback, 10)
-
-        self.erpm_pub = self.create_publisher(Float64, '/commands/motor/speed', 10)
-        self.servo_pub = self.create_publisher(Float64, '/commands/servo/position', 10)
-
-
-    def load_params(self):
         
-        # Declare parameters
-        self.declare_parameter('servo_max', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('servo_min', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('servo_mid', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('wheelbase', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('lr_rmin', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('rr_rmin', rclpy.Parameter.Type.DOUBLE)
-        self.declare_parameter('speed_to_erpm_gain', rclpy.Parameter.Type.INTEGER)
-        self.declare_parameter('rc_deadman_button', rclpy.Parameter.Type.INTEGER)
-        self.declare_parameter('rc_dead_value', rclpy.Parameter.Type.INTEGER)
-        self.declare_parameter('rc_auto_value', rclpy.Parameter.Type.INTEGER)
-        self.declare_parameter('rc_manu_value', rclpy.Parameter.Type.INTEGER)
+        # Initialize brake message
+        self.brake_msg = Float64()
+        self.brake_msg.data = self.brake_amps
         
-        # VESC servo configuration
-        self.servo_max = self.get_parameter('servo_max').get_parameter_value().double_value
-        self.servo_min = self.get_parameter('servo_min').get_parameter_value().double_value
-        self.servo_mid = self.get_parameter('servo_mid').get_parameter_value().double_value
+        # Safety check parameters
+        self.speed_values = []  # Stores speed values for safety check
+        n_seconds = 8  # Duration for the safety check in seconds
+        hz = 40  # Expected number of speed values per second
+        self.min_values = n_seconds * hz  # Minimum number of values for a valid safety check
         
-        # Wheelbase
-        self.wheelbase = self.get_parameter('wheelbase').get_parameter_value().double_value
+        # Create subscribers
+        self.safety_sub = self.create_subscription(
+            AckermannDriveStamped,
+            '/rc/ackermann_cmd',
+            self.safety_check,
+            10
+        )
         
-        # Radius
-        self.lr_rmin = self.get_parameter('lr_rmin').get_parameter_value().double_value
-        self.rr_rmin = self.get_parameter('rr_rmin').get_parameter_value().double_value
+        # Driving command subscribers, initially not active
+        self.rc_sub = None
+        self.ad_sub = None
         
-        # Speed to erpm gain
-        self.speed_to_erpm_gain = self.get_parameter('speed_to_erpm_gain').get_parameter_value().integer_value
-        
-        
-        # Control configurations
-        self.dead_btn = self.get_parameter('rc_deadman_button').get_parameter_value().integer_value
-        self.dead_val = self.get_parameter('rc_dead_value').get_parameter_value().integer_value
-        self.auto_val = self.get_parameter('rc_auto_value').get_parameter_value().integer_value
-        self.manu_val = self.get_parameter('rc_manu_value').get_parameter_value().integer_value
+        # Joystick subscriber for mode updates
+        if self.control_type == 'rc':
+            self.joy_sub = self.create_subscription(Joy, '/rc/joy', self.update_mode, 10)
 
+        elif self.control_type == 'joy':
+            self.joy_sub = self.create_subscription(Joy, '/joy', self.update_mode, 10)
+        else:
+            self.get_logger().error(f'Invalid control_type: {self.control_type}')
+            raise ValueError(f'control_type must be either "rc" or "joy", got {self.control_type}')
+        
+        # Create publishers
+        self.erpm_pub = self.create_publisher(Float64, '/commands/motor/speed', 1)
+        self.servo_pub = self.create_publisher(Float64, '/commands/servo/position', 1)
+        self.brake_pub = self.create_publisher(Float64, '/commands/motor/brake', 1)
+        
+        # Inform user about safety check procedure
+        self.get_logger().info(f"Please activate 'Deadman' mode. Do not touch the throttle or steering for {n_seconds} seconds. "
+            "Safety check ends when speed stays at 0 m/s during this time.")
+    
+    def signal_calibration_complete(self):
+        hz = 40
+        
+        amplitude = 0.2
+        frequency = 3.0
+        vertical_shift = 0.5
+        
+        t = np.linspace(0, np.pi, 60)
+        values = amplitude * np.sin(frequency * t) + vertical_shift
+        
+        for value in values:
+            msg = Float64()
+            msg.data = value
+            self.servo_pub.publish(msg)
+            time.sleep(1/hz)
+    
+    def initialize_subscribers(self):
+        """Initialize subscribers for manual and autonomous driving commands."""
+        if self.rc_sub is None and self.ad_sub is None:
+            self.rc_sub = self.create_subscription(AckermannDriveStamped, '/rc/ackermann_cmd', lambda x: self.callback(x, self.manu_val), 10)
+            self.ad_sub = self.create_subscription(AckermannDriveStamped,'/autonomous/ackermann_cmd',lambda x: self.callback(x, self.auto_val),10)
+    
+    def brake(self):
+        # Publishes the brake message hz times in rapid succession
+        hz = 420
+        
+        for _ in range(hz):
+            self.brake_pub.publish(self.brake_msg)
+            time.sleep(1/hz)
+    
+    def update_mode(self, msg):
+        """Update the driving mode based on joystick input."""
+        new_mode = msg.buttons[self.mode_btn]
 
-    def callback(self, msg, target):
-
+        if new_mode != self.mode:  # mode change
+            self.brake()  # emergency brake
+            
+            self.mode = new_mode
+            mode_name = {
+                self.dead_val: "Deadman",
+                self.auto_val: "Autonomous",
+                self.manu_val: "Manual"
+            }.get(self.mode, "Unknown")
+            self.get_logger().info(f"Mode changed to: {mode_name}")
+    
+    def safety_check(self, ackermann_msg):
+        """Perform safety checks before enabling driving commands."""
+        if self.mode != self.dead_val:
+            return
+        
+        speed = ackermann_msg.drive.speed
+        self.speed_values.append(speed)
+        if len(self.speed_values) > self.min_values:
+            self.speed_values.pop(0)
+            if max(self.speed_values) == 0 and min(self.speed_values) == 0:
+                self.get_logger().info("Calibration complete!")
+                self.destroy_subscription(self.safety_sub)
+                self.signal_calibration_complete()
+                self.initialize_subscribers()
+    
+    def callback(self, ackermann_msg, target):
+        """Process received driving commands based on the current mode."""
         if self.mode != target:
             return
-
-        steer_rad = msg.drive.steering_angle
-        speed = msg.drive.speed
-
+        
+        steering_angle = ackermann_msg.drive.steering_angle
+        speed = ackermann_msg.drive.speed
         erpm = self.speed_to_erpm_gain * speed
-
-        if steer_rad > 0:
-            val = self.rr_m * steer_rad + self.servo_mid
-        else:
-            val = self.lr_m * steer_rad + self.servo_mid
-
-        self.servo_msg.data = max(min(val, self.servo_max), self.servo_min)
+        servo_value = self.servo_mid + steering_angle * self.steer_to_servo_gain
+        
+        self.servo_msg.data = max(min(servo_value, self.servo_max), self.servo_min)
         self.erpm_msg.data = erpm
         
         self.servo_pub.publish(self.servo_msg)
-        self.erpm_pub.publish(self.erpm_msg)
-
-    def deadman_callback(self, msg):
-        self.mode = msg.buttons[self.dead_btn]
-
-    def init_mapping_function(self):
-        self.lr_rad_max = atan(self.wheelbase / self.lr_rmin)
-        self.rr_rad_max = atan(self.wheelbase / self.rr_rmin)
-        self.rr_dy = self.servo_max - self.servo_mid
-        self.lr_dy = self.servo_mid - self.servo_min
-        self.rr_m = self.rr_dy / self.rr_rad_max
-        self.lr_m = self.lr_dy / self.lr_rad_max
-        self.rad_max = max(abs(self.rr_rad_max), abs(self.lr_rad_max))
-
-        self.get_logger().info("The maximum steering angle is set to +/- %.3f rad" % self.rad_max)
+        
+        if abs(erpm) < self.erpm_min:
+            self.brake_pub.publish(self.brake_msg)
+        else:
+            self.erpm_pub.publish(self.erpm_msg)
+    
+    def load_params(self):
+        """Load all required parameters. Raises ParameterNotDeclaredException if any are missing."""
+        self.servo_mid = self.get_parameter('servo_mid').value
+        self.servo_max = self.get_parameter('servo_max').value
+        self.servo_min = self.get_parameter('servo_min').value
+        self.erpm_min = self.get_parameter('erpm_min').value
+        self.brake_amps = self.get_parameter('brake_amps').value
+        self.speed_to_erpm_gain = self.get_parameter('speed_to_erpm_gain').value
+        self.steer_to_servo_gain = self.get_parameter('steer_to_servo_gain').value
+        self.control_type = self.get_parameter('control_type').value
+        
+        if self.control_type == 'rc':
+            self.dead_val = self.get_parameter('rc_dead_value').value
+            self.auto_val = self.get_parameter('rc_auto_value').value
+            self.manu_val = self.get_parameter('rc_manu_value').value
+            self.mode_btn = self.get_parameter('rc_mode_button').value
+        elif self.control_type == 'joy':
+            self.dead_val = self.get_parameter('joy_dead_value').value
+            self.auto_val = self.get_parameter('joy_auto_value').value
+            self.manu_val = self.get_parameter('joy_manu_value').value
+            self.mode_btn = self.get_parameter('joy_mode_button').value
 
 def main(args=None):
     rclpy.init(args=args)
-
-    node = AckermannToVesc()
-
+    
     try:
+        node = AckermannToVesc()
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info('Shutting down Ackermann to VESC Node.')
+        pass
     finally:
-        node.destroy_node()
+        if 'node' in locals():
+            node.destroy_node()
         rclpy.shutdown()
+    
+    return 0
 
 if __name__ == '__main__':
     main()

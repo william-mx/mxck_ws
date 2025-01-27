@@ -5,6 +5,12 @@ from rclpy.clock import Clock
 from sensor_msgs.msg import Joy
 from ackermann_msgs.msg import AckermannDriveStamped
 
+import numpy as np
+
+
+def get_interp(x_vals, y_vals):     
+   return lambda x: np.interp(x, x_vals, y_vals)
+
 class JoyControl(Node):
 
     def __init__(self):
@@ -14,49 +20,51 @@ class JoyControl(Node):
             namespace='',
             parameters=[
                 ('control_type', rclpy.Parameter.Type.STRING),
-                ('servo_rad_min', rclpy.Parameter.Type.DOUBLE),
-                ('servo_rad_mid', rclpy.Parameter.Type.DOUBLE),
-                ('servo_rad_max', rclpy.Parameter.Type.DOUBLE),
-                ('speed_min', rclpy.Parameter.Type.DOUBLE),
-                ('speed_mid', rclpy.Parameter.Type.DOUBLE),
-                ('speed_max', rclpy.Parameter.Type.DOUBLE),
-                ('speed_clip', rclpy.Parameter.Type.DOUBLE),
-                ('rc_speed_axis', rclpy.Parameter.Type.INTEGER),
+                ('steering_angle_max', rclpy.Parameter.Type.DOUBLE),
+                ('max_backward_speed', rclpy.Parameter.Type.DOUBLE),
+                ('max_forward_speed', rclpy.Parameter.Type.DOUBLE),
                 ('rc_steering_axis', rclpy.Parameter.Type.INTEGER),
-                ('rc_deadman_button', rclpy.Parameter.Type.INTEGER),
-                ('joy_speed_axis', rclpy.Parameter.Type.INTEGER),
+                ('rc_speed_axis', rclpy.Parameter.Type.INTEGER),
                 ('joy_steering_axis', rclpy.Parameter.Type.INTEGER),
-                ('joy_deadman_button', rclpy.Parameter.Type.INTEGER),
-                ('speed_deadzone', rclpy.Parameter.Type.DOUBLE),
-                ('steer_deadzone', rclpy.Parameter.Type.DOUBLE),
+                ('joy_speed_axis', rclpy.Parameter.Type.INTEGER),
+                ('joy_deadzone', rclpy.Parameter.Type.DOUBLE),
+                ('erpm_min', rclpy.Parameter.Type.INTEGER),
+                ('speed_to_erpm_gain', rclpy.Parameter.Type.INTEGER),
             ])
 
         # load parameters      
         self.control_type = self.get_parameter("control_type").get_parameter_value().string_value
          
-        self.servo_min = self.get_parameter("servo_rad_min").get_parameter_value().double_value
-        self.servo_mid = self.get_parameter("servo_rad_mid").get_parameter_value().double_value
-        self.servo_max = self.get_parameter("servo_rad_max").get_parameter_value().double_value
-
-        self.speed_min = self.get_parameter("speed_min").get_parameter_value().double_value
-        self.speed_mid = self.get_parameter("speed_mid").get_parameter_value().double_value
-        self.speed_max = self.get_parameter("speed_max").get_parameter_value().double_value
+        steer_max = self.get_parameter("steering_angle_max").get_parameter_value().double_value
+        max_backward_speed = self.get_parameter("max_backward_speed").get_parameter_value().double_value
+        max_forward_speed = self.get_parameter("max_forward_speed").get_parameter_value().double_value
+        erpm_min = self.get_parameter("erpm_min").get_parameter_value().integer_value
+        speed_to_erpm_gain = self.get_parameter("speed_to_erpm_gain").get_parameter_value().integer_value
         
-        self.speed_deadzone = self.get_parameter("speed_deadzone").get_parameter_value().double_value
-        self.steer_deadzone = self.get_parameter("steer_deadzone").get_parameter_value().double_value
+        # print("ERPM: ", erpm_min)
+        # print("speed_to_erpm_gain: ", speed_to_erpm_gain)
+        joy_deadzone = self.get_parameter("joy_deadzone").get_parameter_value().double_value
 
         if self.control_type == 'rc':
             self.steer_ax = self.get_parameter("rc_steering_axis").get_parameter_value().integer_value
             self.speed_ax = self.get_parameter("rc_speed_axis").get_parameter_value().integer_value
-            self.dead_btn = self.get_parameter("rc_deadman_button").get_parameter_value().integer_value
-            self.steer_scale = 1
 
         elif self.control_type == 'joy':
             self.steer_ax = self.get_parameter("joy_steering_axis").get_parameter_value().integer_value
             self.speed_ax = self.get_parameter("joy_speed_axis").get_parameter_value().integer_value
-            self.dead_btn = self.get_parameter("joy_deadman_button").get_parameter_value().integer_value
-            self.steer_scale = -1 # switch directions
-            
+
+        # erpm = speed_to_erpm_gain * speed (in m/s)
+        # speed = erpm / speed_to_erpm_gain
+        speed_min = erpm_min / speed_to_erpm_gain
+
+        eps = np.finfo(np.float32).eps
+        
+        self.steer_mapping = get_interp((-1.0, -joy_deadzone, joy_deadzone, 1.0), \
+                                        (-steer_max, 0.0, 0.0, steer_max))
+        
+        self.speed_mapping = get_interp((-1.0, -joy_deadzone, -joy_deadzone + eps, joy_deadzone - eps, joy_deadzone, 1.0), \
+                                        (max_backward_speed, -speed_min, 0.0, 0.0, speed_min, max_forward_speed))
+        
         self.qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
             history=rclpy.qos.HistoryPolicy.KEEP_LAST, depth=1)
             
@@ -73,45 +81,19 @@ class JoyControl(Node):
             self.callback,
             qos_profile=self.qos_policy)
             
-        self.joy_sub  # prevent unused variable warning
-
-
-                                   
+        self.joy_sub  # prevent unused variable warning             
          
     def callback(self, msg):
     
-        # deadman button
-        if msg.buttons[self.dead_btn] == 0:
+        steering_val = msg.axes[self.steer_ax]
+        speed_val = msg.axes[self.speed_ax]
 
-            steer_rad = self.servo_mid
-            speed_mps = self.speed_mid
-
-        else:
-
-            # steering
-            steer_val = msg.axes[self.steer_ax] * self.steer_scale
-
-            if steer_val > self.steer_deadzone:
-                steer_rad = steer_val * self.servo_max
-            elif steer_val < -self.steer_deadzone:
-                steer_rad = steer_val * self.servo_min * (-1)
-            else:
-                steer_rad = self.servo_mid
-
-            # throttle
-            speed_val = msg.axes[self.speed_ax]
-
-            if speed_val > self.speed_deadzone:
-                speed_mps = speed_val * self.speed_max
-            elif speed_val < -self.speed_deadzone:
-                speed_mps = speed_val * self.speed_min * (-1)
-            else:
-                speed_mps = self.speed_mid
-
+        steering_angle = self.steer_mapping(steering_val)
+        speed = self.speed_mapping(speed_val)
 
         self.ackMsg.header.stamp = Clock().now().to_msg()
-        self.ackMsg.drive.steering_angle = steer_rad
-        self.ackMsg.drive.speed = speed_mps
+        self.ackMsg.drive.steering_angle = steering_angle
+        self.ackMsg.drive.speed = speed
 
         self.ackermann_pub.publish(self.ackMsg)
 

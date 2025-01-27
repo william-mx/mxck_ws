@@ -44,20 +44,22 @@ def generate_launch_description():
         package = 'vehicle_control',
         name = 'ackermann_to_vesc',
         executable = 'ackermann_to_vesc',
-        parameters = [control_config]
+        parameters = [control_config],
+        output="screen"
     )
     
     nucleo=Node(
         package = 'micro_ros_agent',
         name = 'micro_ros_agent',
         executable = 'micro_ros_agent',
-        arguments=["serial", "-b", "921600", "--dev", "/dev/stm32_nucleo"]
+        arguments=["serial", "-b", "921600", "--dev", "/dev/stm32_nucleo"],
+        output="screen"
     )
 
-    ld.add_action(vesc)
+    ld.add_action(nucleo)
     ld.add_action(rc2joy)
     ld.add_action(joy2ackermann)
-    ld.add_action(nucleo)
     ld.add_action(ackermann2vesc)
+    ld.add_action(vesc)
     
     return ld

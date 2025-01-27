@@ -1,3 +1,26 @@
+/**:  # This applies to all nodes
+  ros__parameters:
+    # Defines the index position where the speed, steering, and mode values are stored in the JOY message
+    rc_speed_axis: 1        # Index for speed axis
+    rc_steering_axis: 0     # Index for steering axis
+    rc_mode_button: 0       # Index for mode button
+
+    joy_speed_axis: 1
+    joy_steering_axis: 3
+    joy_mode_button: 4 
+
+    # Minimum ERPM Configuration:
+    # The minimum ERPM value is specified in the VESC motor configuration, under:
+    # VESC Tool 6: Motor Settings > PID Controllers > Minimum ERPM.
+    # It's crucial to use the same minimum ERPM value here to ensure consistency.
+    # The MXcarKit applies brakes when the ERPM falls below this minimum value.
+    # Additionally, engaging the deadman switch will trigger braking.
+    erpm_min: 700
+
+    # Formula for converting speed (in m/s) to ERPM (Electronic RPM)
+    # erpm = speed_to_erpm_gain * speed (in m/s)
+    speed_to_erpm_gain: 3786  # Gain for converting speed to ERPM
+
 rc_to_joy:
   ros__parameters:
     # rc signal
@@ -7,80 +30,52 @@ rc_to_joy:
     steering_mid_pwm: 1515
     steering_max_pwm: 1900
 
-    throttle_min_pwm: 1000
-    throttle_mid_pwm: 1500
-    throttle_max_pwm: 2000
+    speed_min_pwm: 1000
+    speed_mid_pwm: 1500
+    speed_max_pwm: 2000
 
     mode_min_pwm: 1000
     mode_mid_pwm: 1500
     mode_max_pwm: 2000
 
+# ros2 topic pub /veh_remote_ctrl mxcarkit_vehctrl_message/msg/VehCtrlCustomMessage \
+# "{stamp: {sec: 0, nanosec: 0}, remote_pwm: 1500, steering_pwm: 1520, throttle_pwm: 1300}"
 
 joy_to_ackermann:
   ros__parameters:
     
     control_type: "rc" # or "joy"
-    # servo
-    # the maximum steering angle is determined from the measured left and right radius and the wheelbase
-    # see ackermann_to_vesc.py
-    servo_rad_min: -0.442
-    servo_rad_mid:  0.0
-    servo_rad_max:  0.442 # rad
 
-    # maximum speed m/s
-    speed_min: -2.0 # backwards
-    speed_mid:  0.0 
-    speed_max:  2.5 # forward
+    steering_angle_max: 0.44  # Maximum steering angle in radians (+/-)
 
-    # Similar to real vehicles, carkits cannot drive infinitely slow. 
-    # That is why we set a minimum starting speed.
-    # True sensorless commutation is possible only with motor speeds of 500-1000 rpm and up.
-    speed_clip: 0.2 # the carkit starts with +/- ... m/s 
+    max_backward_speed: -2.0  # Minimum speed, represents maximum reverse speed in m/s
+    max_forward_speed: 2.0   # Maximum speed, represents maximum forward speed in m/s
 
-    # manual control
-
-    rc_speed_axis: 1
-    rc_steering_axis: 0
-    rc_deadman_button: 0
-
-    joy_speed_axis: 1
-    joy_steering_axis: 3
-    joy_deadman_button: 4 
-
-    speed_deadzone: 0.001
-    steer_deadzone: 0.001
-
+    joy_deadzone: 0.07
 
 ackermann_to_vesc:
   ros__parameters:
 
-    # vesc
+    ### Ackermann to VESC Configuration ###
+    # Servo values (/commands/servo/position) ranging from 0 to 1
+    # 0 is steering completely to the left, and 1 is steering completely to the right
+    servo_max: 0.9    # Max servo position, prevents steering block by not going fully right
+    servo_min: 0.1    # Min servo position, prevents steering block by not going fully left
+    servo_mid: 0.502  # Mid servo position, represents neutral steering position
 
-    # servo value reaches from 0 to 1 (/commands/servo/position)
-    # select the min and max value so that the steering does not block
-    # select the mid value so that the vehicle drives a straight line
-    servo_max: 0.9 
-    servo_min: 0.1
-    servo_mid: 0.502
+    # VESC braking current in Ampere
+    brake_amps: -20.0
 
-    wheelbase: 0.36 # m
+    # Formula for converting steering angle (in radians) to servo position
+    # steering_val = steer_to_servo_gain * steering_angle (in radians)
+    steer_to_servo_gain: 0.9  # Gain for converting steering angle to servo position
 
-    # use the min and max servo position from above to drive a left and right circle
-    # use rostopic pub /commands/servo/position {servo_max / servo_min}
-    lr_rmin: 0.76 # measure the left radius [meter] (measured from center front axle)
-    rr_rmin: 0.82 # measure the right radius [meter]
+    # Defines the VESC controller signal for different modes or an emergency brake
+    # rc_dead_value: don't drive, rc_auto_value: drive autonomously, rc_manu_value: drive manually
+    rc_dead_value: 0  # Don't drive
+    rc_auto_value: 1  # Drive autonomously
+    rc_manu_value: 2  # Drive manually
 
-    # drive with constant erpm over a fixed distance and measure the time the car takes
-    # rostopic pub -r 5 /commands/motor/speed {erpm} e.g. erpm = 4000
-    # from this the speed is calculated speed (m/s) = distance (m) / time (s)
-    # calculate speed_to_erpm_gain = erpm / speed
-    speed_to_erpm_gain: 3786 # erpm = speed_to_erpm_gain x speed (m/s) + speed_to_erpm_offset
-    
-    # manual control
-    rc_deadman_button: 0 
-    rc_dead_value: 0 # dont drive
-    rc_auto_value: 1 # drive autonomously
-    rc_manu_value: 2 # drive manually
-
-
-
+    joy_dead_value: 0  # Don't drive
+    joy_manu_value: 1  # Drive manually
+    joy_auto_value: 2  # Drive autonomously (not enabled in joy mode)
