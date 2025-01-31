@@ -7,6 +7,17 @@ from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
 from launch_ros.actions import Node
 
+
+whitelist = "[ \
+'/imu_filtered', \
+'/imu_calibrated', \
+'/pdc_visualization', \
+'/camera/color/image_raw', \
+'/bboxs', \
+'/scan', \
+'/robot_description' \
+]"
+
 def generate_launch_description():
     return LaunchDescription([
         # Declare the 'run_foxglove' argument with a default value of 'false'
@@ -30,6 +41,21 @@ def generate_launch_description():
             description='Flag to run LiDAR'
         ),
 
+
+        # Declare the 'run_lidar' argument with a default value of 'false'
+        DeclareLaunchArgument(
+            'run_micro',
+            default_value='false',
+            description='Flag to run micro-ros'
+        ),
+
+        # Declare the 'broadcast_tf' argument with a default value of 'false'
+        DeclareLaunchArgument(
+            'broadcast_tf',
+            default_value='false',
+            description='Flag to run micro-ros'
+        ),
+
         # Conditionally include the foxglove_bridge launch file
         GroupAction(
             condition=IfCondition(LaunchConfiguration('run_foxglove')),
@@ -41,9 +67,9 @@ def generate_launch_description():
                     launch_arguments={
                         'port': '8765',
                         'send_buffer_limit': '10000000',
-                        'topic_whitelist': "['/imu_filtered', '/imu_calibrated', '/pdc_visualization', '/camera/color/image_raw', '/bboxs', '/scan']"
+                        'topic_whitelist': whitelist
                     }.items()
-                )
+                ) 
             ]
         ),
 
@@ -77,4 +103,28 @@ def generate_launch_description():
                 )
             ]
         ),
+
+    # Define the micro-ROS agent node with a condition
+    Node(
+        package='micro_ros_agent',
+        name='micro_ros_agent',
+        executable='micro_ros_agent',
+        arguments=["serial", "-b", "921600", "--dev", "/dev/stm32_nucleo"],
+        output="screen",
+        condition=IfCondition(LaunchConfiguration('run_micro'))
+    ),
+
+
+    # broadcast transformation frames for the MXCarkit
+    GroupAction(
+        condition=IfCondition(LaunchConfiguration('broadcast_tf')),
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    FindPackageShare('mxck_run'), '/launch/broadcast_tf.launch.py'
+                ])
+            )
+        ]
+    ),
+
     ])
