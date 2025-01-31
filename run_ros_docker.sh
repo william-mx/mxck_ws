@@ -13,6 +13,7 @@ sudo docker run -it --rm \
 --env="ROS_ROOT=/opt/ros/humble" \
 --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 --privileged \
+--net=host \
 --name mxck2_base_humble \
 mxck2_base_humble bash
 
