@@ -15,7 +15,8 @@ whitelist = "[ \
 '/camera/color/image_raw', \
 '/bboxs', \
 '/scan', \
-'/robot_description' \
+'/robot_description', \
+'/veh_remote_ctrl' \
 ]"
 
 def generate_launch_description():
