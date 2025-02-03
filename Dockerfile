@@ -1,4 +1,8 @@
-FROM ros_humble_zed_jp61
+FROM ros:humble-ros-base-jammy
+
+RUN apt update && apt install -y --no-install-recommends \
+    ros-$ROS_DISTRO-librealsense2* \
+    ros-$ROS_DISTRO-realsense2-* 
 
 RUN mkdir /microros_ws \
  && cd /microros_ws \
@@ -29,13 +33,16 @@ RUN mkdir -p /vesc_ws \
 
 # https://answers.ros.org/question/396439/setuptoolsdeprecationwarning-setuppy-install-is-deprecated-use-build-and-pip-and-other-standards-based-tools/
 RUN apt install -y python3-pip \
-&& python3 -m pip install setuptools==58.2.0
+    && python3 -m pip install \
+    setuptools==58.2.0 \
+    transforms3d
 
 RUN apt update && apt install -y \
     ros-$ROS_DISTRO-foxglove-bridge \
     ros-$ROS_DISTRO-joy \
     ros-$ROS_DISTRO-robot-state-publisher \
-    ros-$ROS_DISTRO-joint-state-publisher
+    ros-$ROS_DISTRO-joint-state-publisher \
+    ros-$ROS_DISTRO-sensor-msgs-py
 
 COPY ./ros_entrypoint.sh /ros_entrypoint.sh
 RUN echo 'source /ros_entrypoint.sh' >> ~/.bashrc
