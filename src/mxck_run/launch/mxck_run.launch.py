@@ -57,6 +57,21 @@ def generate_launch_description():
             description='Flag to run micro-ros'
         ),
 
+
+        # Declare the 'run_pdc' argument with a default value of 'false'
+        DeclareLaunchArgument(
+            'run_pdc',
+            default_value='false',
+            description='Flag to run pdc visualization'
+        ),
+
+        # Declare the 'run_motors' argument with a default value of 'false'
+        DeclareLaunchArgument(
+            'run_motors',
+            default_value='false',
+            description='Flag to start manual control'
+        ),
+
         # Conditionally include the foxglove_bridge launch file
         GroupAction(
             condition=IfCondition(LaunchConfiguration('run_foxglove')),
@@ -71,6 +86,18 @@ def generate_launch_description():
                         'topic_whitelist': whitelist
                     }.items()
                 ) 
+            ]
+        ),
+
+        # Conditionally include the manual_control launch file
+        GroupAction(
+            condition=IfCondition(LaunchConfiguration('run_motors')),
+            actions=[
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource([
+                        FindPackageShare('vehicle_control'), '/launch/manual_control.launch.py'
+                    ])
+                )
             ]
         ),
 
@@ -99,7 +126,7 @@ def generate_launch_description():
             actions=[
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
-                        FindPackageShare('rplidar_ros'), '/launch/rplidar_a2m8_launch.py'
+                        FindPackageShare('rplidar_ros'), '/launch/rplidar_a2m12_launch.py'
                     ])
                 )
             ]
@@ -111,10 +138,17 @@ def generate_launch_description():
         name='micro_ros_agent',
         executable='micro_ros_agent',
         arguments=["serial", "-b", "921600", "--dev", "/dev/stm32_nucleo"],
-        output="screen",
         condition=IfCondition(LaunchConfiguration('run_micro'))
     ),
 
+    # Define the pdc_pointcloud node with a condition
+    Node(
+        package='pdc_visualization',
+        name='pdc_pointcloud',
+        executable='pdc_pointcloud',
+        output="screen",
+        condition=IfCondition(LaunchConfiguration('run_pdc'))
+    ),
 
     # broadcast transformation frames for the MXCarkit
     GroupAction(
