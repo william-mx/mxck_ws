@@ -48,15 +48,7 @@ def generate_launch_description():
         output="screen"
     )
     
-    nucleo=Node(
-        package = 'micro_ros_agent',
-        name = 'micro_ros_agent',
-        executable = 'micro_ros_agent',
-        arguments=["serial", "-b", "921600", "--dev", "/dev/stm32_nucleo"],
-        output="screen"
-    )
 
-    ld.add_action(nucleo)
     ld.add_action(rc2joy)
     ld.add_action(joy2ackermann)
     ld.add_action(ackermann2vesc)
