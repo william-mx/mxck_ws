@@ -43,12 +43,3 @@ RUN apt update && apt install -y \
     ros-$ROS_DISTRO-robot-state-publisher \
     ros-$ROS_DISTRO-joint-state-publisher \
     ros-$ROS_DISTRO-sensor-msgs-py
-
-COPY ./ros_entrypoint.sh /ros_entrypoint.sh
-RUN echo 'source /ros_entrypoint.sh' >> ~/.bashrc
-
-COPY ./autorun.sh /
-ENTRYPOINT ["./autorun.sh"]
-CMD ["false"]
-
-WORKDIR /humble_ws
