@@ -110,11 +110,20 @@ def generate_launch_description():
                         FindPackageShare('realsense2_camera'), '/launch/rs_launch.py'
                     ]),
                     launch_arguments={
-                        'color_width': '320',
-                        'color_height': '180',
-                        'color_fps': '6',
-                        'enable_confidence': 'False',
+                        'enable_color': 'True',
+                        'rgb_camera.color_profile': '640x480x30',
+                        'rgb_camera.color_format': 'BGR8', # RGB8, Y8
+                        'rgb_camera.enable_auto_exposure': 'True',
+                        'rgb_camera.backlight_compensation': 'False',
+                        'rgb_camera.enable_auto_white_balance': 'True',
                         'enable_depth': 'False',
+                        'depth_module.depth_profile': '640x480x30',
+                        'enable_accel': 'False',
+                        'enable_gyro': 'False',
+                        'enable_infra1': 'False',
+                        'enable_infra2': 'False',
+                        'enable_rgbd': 'False',
+                        'enable_sync': 'False',
                     }.items()
                 )
             ]
