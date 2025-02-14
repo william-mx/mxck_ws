@@ -4,12 +4,12 @@ In theory, it is best practice to use the official ROS Docker images from Nvidia
 
 Clone this repository.
 ```
-git clone -b mxck2_base https://github.com/william-mx/mxck_ws.git ~/mxck2_ws/mxck2_base
+git clone -b mxck2_ws https://github.com/william-mx/mxck_ws.git ~/mxck2_ws
 ```
 
 Make shell scripts and python files executable.
 ```
-cd ~/mxck2_ws/mxck2_base
+cd ~/mxck2_ws
 sudo find . -type f -name '*.py' -o -name '*.sh' -exec chmod +x {} \;
 sudo find . -type f -name '*.py' -exec dos2unix {} \;
 ```
