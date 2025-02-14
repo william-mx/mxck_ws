@@ -6,12 +6,9 @@ xhost +local:docker
 
 # run ros docker container
 sudo docker run -it --rm \
---mount type=bind,source=/home/mxck/mxck2_ws/mxck2_base,target=/humble_ws \
+--mount type=bind,source=/home/mxck/mxck2_ws,target=/humble_ws \
 --mount type=bind,source=/dev,target=/dev \
---env="DISPLAY" \
---env="QT_X11_NO_MITSHM=1" \
 --env="ROS_ROOT=/opt/ros/humble" \
---volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 --privileged \
 --net=host \
 --name mxck2_base_humble \
