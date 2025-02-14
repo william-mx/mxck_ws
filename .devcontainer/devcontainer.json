@@ -1,0 +1,32 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the 
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+	"name": "Existing Dockerfile",
+	"build": {
+		"context": "..",
+		"dockerfile": "../Dockerfile"
+	},
+
+	// Set the working directory inside the container
+	"workspaceFolder": "/humble_ws",
+
+	// Mount the local folder into the container
+	"workspaceMount": "source=/home/mxck/mxck2_ws,target=/humble_ws,type=bind",
+
+	// Run container in privileged mode with NVIDIA CUDA support
+	"runArgs": [
+		"--privileged",
+		"--gpus=all",
+		"--runtime=nvidia",
+		"--env=NVIDIA_VISIBLE_DEVICES=all",
+		"--env=NVIDIA_DRIVER_CAPABILITIES=all"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	}
+}
