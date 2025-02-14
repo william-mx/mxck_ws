@@ -18,6 +18,7 @@ RUN mkdir /microros_ws \
 RUN mkdir -p /vesc_ws \
  && git clone -b ros2 https://github.com/f1tenth/vesc.git /vesc_ws/src \
  && cd /vesc_ws/src \
+ && git clone -b ros2 https://github.com/ros-drivers/ackermann_msgs.git \
  && rm -r ./vesc_ackermann && rm -r ./vesc \
  && git clone -b humble https://github.com/ros-drivers/transport_drivers.git \
  && cd /vesc_ws \
