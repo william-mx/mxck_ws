@@ -61,14 +61,14 @@ ackermann_to_vesc:
     # 0 is steering completely to the left, and 1 is steering completely to the right
     servo_max: 0.9    # Max servo position, prevents steering block by not going fully right
     servo_min: 0.1    # Min servo position, prevents steering block by not going fully left
-    servo_mid: 0.502  # Mid servo position, represents neutral steering position
+    servo_mid: 0.443  # Mid servo position, represents neutral steering position
 
     # VESC braking current in Ampere
     brake_amps: -20.0
 
     # Formula for converting steering angle (in radians) to servo position
     # steering_val = steer_to_servo_gain * steering_angle (in radians)
-    steer_to_servo_gain: 0.9  # Gain for converting steering angle to servo position
+    steer_to_servo_gain: 1.0  # Gain for converting steering angle to servo position
 
     # Defines the VESC controller signal for different modes or an emergency brake
     # rc_dead_value: don't drive, rc_auto_value: drive autonomously, rc_manu_value: drive manually
@@ -79,3 +79,5 @@ ackermann_to_vesc:
     joy_dead_value: 0  # Don't drive
     joy_manu_value: 1  # Drive manually
     joy_auto_value: 2  # Drive autonomously (not enabled in joy mode)
+
+    invert_steering: true
