@@ -2,15 +2,16 @@
 set -e
 
 # Overlaying ROS Workspaces
-HUMBLE_SH=/opt/ros/humble/setup.bash
+ROS2_SH=/opt/ros/foxy/setup.bash
+# ROS2_SH=/opt/ros/humble/setup.bash
 MICROROS_SH=/microros_ws/install/setup.bash
 VESC_SH=/vesc_ws/install/setup.bash
 RPLIDAR_SH=/rplidar_ws/install/setup.bash
-MXCK_SH=/humble_ws/install/setup.bash
+MXCK_SH=/mxck2_ws/install/setup.bash
 
 
 # setup ros2 environment
-source $HUMBLE_SH
+source $ROS2_SH
 
 # setup micro-ros environment
 source $MICROROS_SH
