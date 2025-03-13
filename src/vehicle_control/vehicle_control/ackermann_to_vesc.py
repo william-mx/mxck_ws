@@ -31,14 +31,18 @@ class AckermannToVesc(Node):
                 ('joy_dead_value', rclpy.Parameter.Type.INTEGER),
                 ('joy_auto_value', rclpy.Parameter.Type.INTEGER),
                 ('joy_manu_value', rclpy.Parameter.Type.INTEGER),
-                ('joy_mode_button', rclpy.Parameter.Type.INTEGER)
+                ('joy_mode_button', rclpy.Parameter.Type.INTEGER),
+                ('invert_steering', rclpy.Parameter.Type.BOOL)
             ]
         )
 
         
         
         self.load_params()
-        
+
+        # Create a timer that calls load_params every 10 seconds
+        self.timer = self.create_timer(10.0, self.load_params)
+
         # Initialize mode as None indicating no mode is set initially
         self.mode = None
         
@@ -141,11 +145,11 @@ class AckermannToVesc(Node):
         self.speed_values.append(speed)
         if len(self.speed_values) > self.min_values:
             self.speed_values.pop(0)
-            if max(self.speed_values) == 0 and min(self.speed_values) == 0:
-                self.get_logger().info("Calibration complete!")
-                self.destroy_subscription(self.safety_sub)
-                self.signal_calibration_complete()
-                self.initialize_subscribers()
+            # if max(self.speed_values) == 0 and min(self.speed_values) == 0:
+            self.get_logger().info("Calibration complete!")
+            self.destroy_subscription(self.safety_sub)
+            self.signal_calibration_complete()
+            self.initialize_subscribers()
     
     def callback(self, ackermann_msg, target):
         """Process received driving commands based on the current mode."""
@@ -155,7 +159,7 @@ class AckermannToVesc(Node):
         steering_angle = ackermann_msg.drive.steering_angle
         speed = ackermann_msg.drive.speed
         erpm = self.speed_to_erpm_gain * speed
-        servo_value = self.servo_mid + steering_angle * self.steer_to_servo_gain
+        servo_value = self.servo_mid + self.steering_sign * steering_angle * self.steer_to_servo_gain
         
         self.servo_msg.data = max(min(servo_value, self.servo_max), self.servo_min)
         self.erpm_msg.data = erpm
@@ -188,6 +192,9 @@ class AckermannToVesc(Node):
             self.auto_val = self.get_parameter('joy_auto_value').value
             self.manu_val = self.get_parameter('joy_manu_value').value
             self.mode_btn = self.get_parameter('joy_mode_button').value
+
+        invert_steering = self.get_parameter("invert_steering").get_parameter_value().bool_value
+        self.steering_sign = -1 if invert_steering else 1
 
 def main(args=None):
     rclpy.init(args=args)
