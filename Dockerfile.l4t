@@ -1,0 +1,152 @@
+# Use the Jetson/JetPack base image with Ultralytics
+FROM ultralytics/ultralytics:latest-jetson-jetpack5
+
+###############################################################################
+# Fix for setuptools deprecation warning
+###############################################################################
+
+# Install a specific version of setuptools to avoid deprecation warnings
+# https://answers.ros.org/question/396439/setuptoolsdeprecationwarning-setuppy-install-is-deprecated-use-build-and-pip-and-other-standards-based-tools/
+RUN python3 -m pip install setuptools==58.2.0
+
+###############################################################################
+# Base Environment & ROS Foxy Setup
+###############################################################################
+
+# Set ROS distribution and locale environment variables
+ENV ROS_DISTRO=foxy \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    DEBIAN_FRONTEND=noninteractive
+
+
+# Install locales and other prerequisites needed for ROS installation
+RUN apt-get update && apt-get install -y \
+    locales \
+    curl \
+    gnupg2 \
+    lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+
+# Generate the en_US.UTF-8 locale
+RUN locale-gen en_US.UTF-8
+
+# Add the ROS 2 repository key and repository for Foxy (arm64)
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \
+    gpg --dearmor -o /usr/share/keyrings/ros-archive-keyring.gpg && \
+    echo "deb [arch=arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/main $(lsb_release -cs) main" \
+    > /etc/apt/sources.list.d/ros2-latest.list
+
+# Install ROS Foxy desktop and common build tools
+RUN apt-get update && apt-get install -y \
+    ros-foxy-desktop \
+    python3-colcon-common-extensions \
+    python3-rosdep \
+    && rm -rf /var/lib/apt/lists/*
+
+# Initialize rosdep (required for building ROS packages)
+RUN rosdep init && rosdep update
+
+###############################################################################
+# RealSense SDK & ROS Packages Installation
+###############################################################################
+
+# Update system and install necessary dependencies for building various packages
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
+    git \
+    libssl-dev \
+    libusb-1.0-0-dev \
+    pkg-config \
+    libgtk-3-dev \
+    libglfw3-dev \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    cmake \
+    build-essential
+
+# Clone the librealsense repository from IntelRealSense on GitHub
+RUN git clone https://github.com/IntelRealSense/librealsense.git /librealsense
+
+# Build and install the librealsense SDK from source
+RUN cd /librealsense && \
+    mkdir build && \
+    cd build && \
+    cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true && \
+    make -j$(nproc) && \
+    make install
+
+# Set the library path so installed libraries can be found
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# Install additional ROS dependencies that are needed for RealSense
+RUN apt-get update && apt-get install -y \
+    ros-foxy-diagnostic-updater \
+    ros-foxy-xacro
+
+# Install RealSense ROS packages via apt
+RUN apt install --yes ros-foxy-realsense2-*
+
+###############################################################################
+# Micro-ROS Setup and Build
+###############################################################################
+
+# Clone the micro-ROS setup repository and build the micro-ROS agent
+RUN mkdir -p /microros_ws \
+    && cd /microros_ws \
+    && git clone -b foxy https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup \
+    && . /opt/ros/foxy/setup.sh \
+    && rosdep update \
+    && rosdep install --from-paths src --ignore-src -y \
+    && colcon build \
+    && . install/local_setup.sh \
+    && ros2 run micro_ros_setup create_agent_ws.sh \
+    && ros2 run micro_ros_setup build_agent.sh 
+
+###############################################################################
+# RPLIDAR ROS Package Setup
+###############################################################################
+
+# Clone the RPLIDAR ROS package and build it with symlink install
+RUN git clone -b ros2 https://github.com/Slamtec/rplidar_ros.git /rplidar_ws/src \
+    && cd /rplidar_ws \
+    && . /opt/ros/foxy/setup.sh \
+    && colcon build --symlink-install
+
+###############################################################################
+# VESC ROS Package Setup
+###############################################################################
+
+# Install UDP messaging, clone and configure VESC related packages, and build the workspace
+RUN apt install --yes ros-foxy-udp-msgs \
+    && mkdir -p /vesc_ws \
+    && git clone -b foxy https://github.com/f1tenth/vesc.git /vesc_ws/src \
+    && cd /vesc_ws/src \
+    && git clone -b ros2 https://github.com/ros-drivers/ackermann_msgs.git \
+    && rm -r ./vesc_ackermann && rm -r ./vesc \
+    && git clone -b foxy https://github.com/ros-drivers/transport_drivers.git \
+    && cd /vesc_ws \
+    && . /opt/ros/foxy/setup.sh \
+    && rosdep update && rosdep install --from-paths src --ignore-src -r -y \
+    && colcon build
+
+
+RUN apt-get install -y \
+    ros-$ROS_DISTRO-rosbridge-suite \
+    ros-$ROS_DISTRO-joy \
+    ros-$ROS_DISTRO-robot-state-publisher \
+    ros-$ROS_DISTRO-joint-state-publisher \
+    ros-$ROS_DISTRO-sensor-msgs-py \
+    ros-$ROS_DISTRO-rosbag2-storage-mcap
+
+# Reduce NumPy version to avoid conflicts with PyCUDA and TensorRT
+RUN python3 -m pip install \
+    pycuda \
+    numpy==1.23 \
+    transforms3d
+
+
+# Link trtexec globally for convenience
+RUN ln -s /usr/src/tensorrt/bin/trtexec /usr/local/bin/trtexec
+
+
