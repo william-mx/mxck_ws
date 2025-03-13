@@ -8,10 +8,10 @@
 	},
 
 	// Set the working directory inside the container
-	"workspaceFolder": "/humble_ws",
+	"workspaceFolder": "/mxck2_ws",
 
 	// Mount the local folder into the container
-	"workspaceMount": "source=/home/mxck/mxck2_ws,target=/humble_ws,type=bind",
+	"workspaceMount": "source=/home/mxck/mxck2_ws,target=/mxck2_ws,type=bind",
 
 	// Run container in privileged mode with NVIDIA CUDA support
 	"runArgs": [
@@ -19,7 +19,11 @@
 		"--gpus=all",
 		"--runtime=nvidia",
 		"--env=NVIDIA_VISIBLE_DEVICES=all",
-		"--env=NVIDIA_DRIVER_CAPABILITIES=all"
+		"--env=NVIDIA_DRIVER_CAPABILITIES=all",
+		"--network=host"
+	],
+	"mounts": [
+		"source=/dev,target=/dev,type=bind"
 	],
 	"customizations": {
 		"vscode": {
