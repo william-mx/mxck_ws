@@ -7,30 +7,26 @@ from pathlib import Path
 from ament_index_python.packages import get_package_prefix
 
 def generate_launch_description():
-    # Get the package directory (not the install directory)
-    pkg_path = get_package_prefix('mxck_run') # /humble_ws/install/mxck_run
-    ws_dir = Path(pkg_path).parents[-2] #/humble_ws
-    pkg_src_dir = os.path.join(ws_dir, 'src', 'mxck_run')
-    
-    # Path to the URDF file in the source directory
-    urdf_path = os.path.join(pkg_src_dir, 'urdf', 'mxcarkit.urdf')
-    
-    # Declare the robot_description parameter with proper type handling
-    robot_description = ParameterValue(
-        Command([
-            FindExecutable(name='xacro'),
-            ' ',
-            urdf_path
-        ]),
-        value_type=str
-    )
 
+    # Path to the URDF file in the source directory
+    pkg_dir = get_package_prefix('mxck_run').replace('install', 'src') #  /humble_ws/install/mxck_run → /humble_ws/src/mxck_run
+    urdf_path = pkg_dir + '/urdf/mxcarkit.urdf'
+
+    
+    with open(urdf_path, 'r') as urdf_file:
+        robot_description_content = urdf_file.read()
+
+    robot_description = ParameterValue(robot_description_content, value_type=str)
+
+    # Define nodes
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        parameters=[{
-            'robot_description': robot_description
-        }]
+        parameters=[
+            {'robot_description': robot_description},
+            {'publish_frequency': 20.0},  # Adjust this value as needed
+            {'use_tf_static': True}  # Set to True to publish static transforms only once
+        ]
     )
 
     return LaunchDescription([
