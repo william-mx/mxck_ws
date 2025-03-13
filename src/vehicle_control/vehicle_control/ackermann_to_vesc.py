@@ -145,11 +145,11 @@ class AckermannToVesc(Node):
         self.speed_values.append(speed)
         if len(self.speed_values) > self.min_values:
             self.speed_values.pop(0)
-            # if max(self.speed_values) == 0 and min(self.speed_values) == 0:
-            self.get_logger().info("Calibration complete!")
-            self.destroy_subscription(self.safety_sub)
-            self.signal_calibration_complete()
-            self.initialize_subscribers()
+            if max(self.speed_values) == 0 and min(self.speed_values) == 0:
+                self.get_logger().info("Calibration complete!")
+                self.destroy_subscription(self.safety_sub)
+                self.signal_calibration_complete()
+                self.initialize_subscribers()
     
     def callback(self, ackermann_msg, target):
         """Process received driving commands based on the current mode."""
