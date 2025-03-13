@@ -1,0 +1,18 @@
+# ROS 2 Bag Conversion Configuration
+# This file defines the parameters for converting a ROS 2 bag file into a different storage format.
+
+output_bags:
+  - uri: '/mxck2_ws/src/mxck_run/bagfiles/converted_bag'  # Output file path (change as needed)
+    storage_id: 'mcap'  # Desired storage format (e.g., 'mcap' for MCAP, 'sqlite3' for SQLite)
+    
+    # Alternative storage format (uncomment to use SQLite instead of MCAP)
+    # storage_id: 'sqlite3'
+
+    all_topics: true  # Convert all topics from the input bag
+
+# Usage:
+# Run the following command to convert a ROS 2 bag file:
+# ros2 bag convert -i /path/to/input_bag -o /mxck2_ws/src/mxck_run/bagfiles/ros2_bag_conversion.yaml
+
+
+
