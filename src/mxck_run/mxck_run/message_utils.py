@@ -1,17 +1,33 @@
-import struct
-import numpy as np
-from sensor_msgs.msg import PointCloud2, PointField
-from std_msgs.msg import Header
-from rclpy.clock import Clock
 import rclpy
+from rclpy.clock import Clock
+
 from tf2_ros import Buffer, TransformListener, LookupException, ConnectivityException, ExtrapolationException
-from geometry_msgs.msg import TransformStamped
 from transforms3d.quaternions import quat2mat
+
+import numpy as np
+import struct
+import cv2
 import time
 
+from std_msgs.msg import Header
+from sensor_msgs.msg import PointCloud2, PointField
+from geometry_msgs.msg import TransformStamped
 
-import time
-import transforms3d
+def image_msg_to_numpy(image_msg):
+    """Convert a ROS sensor_msgs/Image (BGR8) to a NumPy array."""
+    try:
+        return np.frombuffer(image_msg.data, dtype=np.uint8).reshape(image_msg.height, image_msg.width, 3)
+    except Exception as e:
+        print(f"Error converting image_msg to NumPy: {e}")
+        return None
+
+def compressed_image_msg_to_numpy(compressed_msg):
+    """Convert a ROS sensor_msgs/CompressedImage (BGR8) to a NumPy array."""
+    try:
+        return cv2.imdecode(np.frombuffer(compressed_msg.data, np.uint8), cv2.IMREAD_COLOR)
+    except Exception as e:
+        print(f"Error converting compressed image_msg to NumPy: {e}")
+        return None
 
 def get_relative_transform(source_frame: str, target_frame: str) -> np.ndarray:
     """
