@@ -11,6 +11,17 @@ from nav_msgs.msg import Path
 from std_msgs.msg import Header
 from sensor_msgs.msg import PointCloud2, PointField, CompressedImage
 from cv_bridge import CvBridge
+from ackermann_msgs.msg import AckermannDriveStamped
+
+def create_ackermann_msg(speed, steering_angle, timestamp=None):
+    msg = AckermannDriveStamped()
+    
+    msg.header.stamp = timestamp.to_msg() if timestamp else Clock().now().to_msg()
+
+    msg.drive.speed = speed
+    msg.drive.steering_angle = steering_angle
+    
+    return msg
 
 def create_compressed_grayscale_image_message(cv_image, timestamp=None):
     """
