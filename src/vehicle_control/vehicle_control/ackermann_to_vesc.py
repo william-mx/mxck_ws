@@ -39,6 +39,9 @@ class AckermannToVesc(Node):
         
         
         self.load_params()
+        
+        # brake if current_speed == 0.0 and current_speed != previous_speed
+        self.previous_speed = 0.0
 
         # Create a timer that calls load_params every 10 seconds
         self.timer = self.create_timer(10.0, self.load_params)
@@ -137,6 +140,7 @@ class AckermannToVesc(Node):
             self.get_logger().info(f"Mode changed to: {mode_name}")
     
     def safety_check(self, ackermann_msg):
+
         """Perform safety checks before enabling driving commands."""
         if self.mode != self.dead_val:
             return
@@ -158,6 +162,12 @@ class AckermannToVesc(Node):
         
         steering_angle = ackermann_msg.drive.steering_angle
         speed = ackermann_msg.drive.speed
+
+        if speed == 0.0 and speed != self.previous_speed:
+            self.brake()
+
+        self.previous_speed = speed
+
         erpm = self.speed_to_erpm_gain * speed
         servo_value = self.servo_mid + self.steering_sign * steering_angle * self.steer_to_servo_gain
         
