@@ -9,7 +9,7 @@ from ament_index_python.packages import get_package_prefix
 def generate_launch_description():
 
     # Path to the URDF file in the source directory
-    pkg_dir = get_package_prefix('mxck_run').replace('install', 'src') #  /humble_ws/install/mxck_run → /humble_ws/src/mxck_run
+    pkg_dir = get_package_prefix('mxck_run').replace('install', 'src') #  /mxck2_ws/install/mxck_run → /humble_ws/src/mxck_run
     urdf_path = pkg_dir + '/urdf/mxcarkit.urdf'
 
     
