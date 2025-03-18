@@ -1,17 +1,183 @@
 import rclpy
 from rclpy.clock import Clock
 
-from tf2_ros import Buffer, TransformListener, LookupException, ConnectivityException, ExtrapolationException
+from tf2_ros import Buffer, TransformListener
 from transforms3d.quaternions import quat2mat
-
+from geometry_msgs.msg import PoseStamped, Quaternion
 import numpy as np
 import struct
 import cv2
-import time
-
+from nav_msgs.msg import Path
 from std_msgs.msg import Header
-from sensor_msgs.msg import PointCloud2, PointField
-from geometry_msgs.msg import TransformStamped
+from sensor_msgs.msg import PointCloud2, PointField, CompressedImage
+from cv_bridge import CvBridge
+
+def create_compressed_grayscale_image_message(cv_image, timestamp=None):
+    """
+    Create a ROS 2 CompressedImage message from an OpenCV grayscale image.
+
+    Args:
+        cv_image (numpy.ndarray): The OpenCV image to be compressed. 
+                                  It should be in the format (height, width) for grayscale.
+        timestamp (rclpy.time.Time, optional): The timestamp for the header of the message.
+                                               If None, uses the current ROS 2 time.
+
+    Returns:
+        CompressedImage: A ROS 2 CompressedImage message containing the compressed grayscale image data.
+    """
+    if len(cv_image.shape) == 3:
+        # Convert to grayscale if it's not already
+        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+
+    compressed_image_msg = CompressedImage()
+    compressed_image_msg.header.stamp = timestamp.to_msg() if timestamp else Clock().now().to_msg()
+
+    compressed_image_msg.format = "jpeg"  # JPEG supports grayscale
+    compressed_image_msg.data = np.array(cv2.imencode('.jpg', cv_image, [cv2.IMWRITE_JPEG_QUALITY, 100])[1]).tobytes()
+    
+    return compressed_image_msg
+
+def create_compressed_image_message(cv_image, timestamp=None):
+    """
+    Create a ROS 2 CompressedImage message from an OpenCV image.
+
+    Args:
+        cv_image (numpy.ndarray): The OpenCV image to be compressed. 
+                                  It should be in the format (height, width, channels).
+        timestamp (rclpy.time.Time, optional): The timestamp for the header of the message.
+                                               If None, uses the current ROS 2 time.
+
+    Returns:
+        CompressedImage: A ROS 2 CompressedImage message containing the compressed image data.
+    """
+    compressed_image_msg = CompressedImage()
+
+    compressed_image_msg.header.stamp = timestamp.to_msg() if timestamp else Clock().now().to_msg()
+
+    compressed_image_msg.format = "jpeg"
+    compressed_image_msg.data = np.array(cv2.imencode('.jpg', cv_image)[1]).tobytes()
+    
+    return compressed_image_msg
+
+
+def create_ros_image(numpy_image: np.ndarray, timestamp=None):
+    """
+    Converts a NumPy image to a ROS 2 Image message.
+    
+    Args:
+        numpy_image (np.ndarray): Image in NumPy array format (H x W x C).
+        timestamp (builtin_interfaces.msg.Time, optional): Timestamp for the message.
+    
+    Returns:
+        sensor_msgs.msg.Image: ROS 2 Image message.
+    """
+    bridge = CvBridge()
+    ros_image = bridge.cv2_to_imgmsg(numpy_image, encoding="bgr8")
+
+    ros_image.header.stamp = timestamp.to_msg() if timestamp else Clock().now().to_msg()
+
+    ros_image.header.frame_id = "camera_frame"  # Set appropriate frame ID
+    return ros_image
+
+def angle_to_quaternion(angle):
+    """
+    Convert a yaw angle (in radians) to a ROS2 Quaternion message.
+    
+    Parameters
+    ----------
+    angle : float
+        The yaw angle in radians.
+    
+    Returns
+    -------
+    Quaternion
+        A ROS2 Quaternion message representing the yaw rotation.
+    """
+    quaternion = Quaternion()
+    quaternion.x = 0.0
+    quaternion.y = 0.0
+    quaternion.z = np.sin(angle / 2.0)
+    quaternion.w = np.cos(angle / 2.0)
+    return quaternion
+
+
+def create_pose_message(point, angle, frame_id = 'base_link', timestamp=None):
+    """
+    Create a PoseStamped message from a point and yaw angle.
+    
+    Parameters
+    ----------
+    point : list or np.ndarray
+        A list or array containing the [x, y, z] coordinates of the point.
+        If z is not provided, it defaults to 0.0.
+    angle : float
+        The yaw angle in radians.
+    
+    Returns
+    -------
+    PoseStamped
+        A ROS2 PoseStamped message containing the position and orientation.
+    """
+
+    pose = PoseStamped()
+    pose.header.stamp = timestamp.to_msg() if timestamp else Clock().now().to_msg()
+    pose.header.frame_id = frame_id
+    pose.pose.position.x = float(point[0])
+    pose.pose.position.y = float(point[1])
+    pose.pose.position.z = float(point[2]) if len(point) > 2 else 0.0
+    pose.pose.orientation = angle_to_quaternion(angle)
+    return pose
+
+def create_path_message(waypoints, frame_id='base_link', timestamp=None):
+    """
+    Create a ROS2 Path message from a set of waypoints and a frame ID.
+    
+    Parameters
+    ----------
+    waypoints : np.ndarray or list
+        A numpy array or list of waypoints, where each waypoint is [x, y, theta].
+        Each row represents the (x, y) coordinates and the yaw angle (theta) in radians.
+        Expected shape: (N, 3), where N is the number of waypoints.
+    frame_id : str, optional
+        The frame of reference for the path (default is 'base_link').
+    timestamp : builtin_interfaces.msg.Time, optional
+        The timestamp for the header. If not provided, the current ROS time is used.
+    
+    Returns
+    -------
+    Path
+        A ROS2 Path message containing PoseStamped messages for each waypoint.
+    
+    Raises
+    -------
+    ValueError
+        If the waypoints array does not have 3 columns (x, y, theta).
+    """
+    clock = Clock()
+    if timestamp is None:
+        timestamp = clock.now().to_msg()
+
+    # Ensure waypoints is a numpy array.
+    waypoints = np.array(waypoints)
+
+    # If a single waypoint is provided, reshape it.
+    if waypoints.ndim == 1:
+        waypoints = waypoints.reshape(1, -1)
+
+    if waypoints.shape[1] != 3:
+        raise ValueError("Waypoints should have 3 columns: x, y, and theta.")
+
+    path_msg = Path()
+    path_msg.header.stamp = timestamp
+    path_msg.header.frame_id = frame_id
+
+    for point in waypoints:
+        pose = create_pose_message(point[:2], point[2])
+        pose.header.frame_id = frame_id
+        path_msg.poses.append(pose)
+
+    return path_msg
+
 
 def image_msg_to_numpy(image_msg):
     """Convert a ROS sensor_msgs/Image (BGR8) to a NumPy array."""
