@@ -27,18 +27,8 @@ class UltrasonicSensorProcessor(Node):
         self.thetas = np.linspace(self.angle_start, self.angle_end, self.num_points)
 
         # Mapping sensor indices to tf frames
-        self.index2frame = {
-            0: "USS_SRB",
-            1: "USS_SRF",
-            2: "USS_FR",
-            3: "USS_FC",
-            4: "USS_FL",
-            5: "USS_SLF",
-            6: "USS_SLB",
-            7: "USS_BL",
-            8: "USS_BC",
-            9: "USS_BR"
-        }
+        self.load_params()
+
         self.frames = list(self.index2frame.values())
 
         # Fetch transformations using the function
@@ -109,6 +99,26 @@ class UltrasonicSensorProcessor(Node):
 
         return transformed_points
 
+    def load_params(self):
+        # Declare parameters with default values
+        self.declare_parameters(
+            namespace='',
+            parameters=[
+                ('index2frame.0', 'USS_SRB'),
+                ('index2frame.1', 'USS_SRF'),
+                ('index2frame.2', 'USS_FR'),
+                ('index2frame.3', 'USS_FC'),
+                ('index2frame.4', 'USS_FL'),
+                ('index2frame.5', 'USS_SLF'),
+                ('index2frame.6', 'USS_SLB'),
+                ('index2frame.7', 'USS_BL'),
+                ('index2frame.8', 'USS_BC'),
+                ('index2frame.9', 'USS_BR')
+            ]
+        )
+        
+        self.frame2index = {self.get_parameter(f'index2frame.{i}').get_parameter_value().string_value: int(i) for i in range(10)}
+        self.index2frame = {v: k for k, v in self.frame2index.items()}
 
 def main():
     rclpy.init()

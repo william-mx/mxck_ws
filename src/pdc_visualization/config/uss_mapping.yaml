@@ -1,0 +1,13 @@
+/**:
+  ros__parameters:
+    index2frame:
+      "0": "USS_SRF"
+      "1": "USS_SRB"
+      "2": "USS_BR"
+      "3": "USS_BC"
+      "4": "USS_BL"
+      "5": "USS_SLB"
+      "6": "USS_SLF"
+      "7": "USS_FL"
+      "8": "USS_FC"
+      "9": "USS_FR"
