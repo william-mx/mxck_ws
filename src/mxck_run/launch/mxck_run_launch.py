@@ -134,7 +134,7 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration("broadcast_tf")),
         actions=[
             IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([tf_broadcast_pkg, "/launch/broadcast_tf.launch.py"])
+                PythonLaunchDescriptionSource([tf_broadcast_pkg, "/launch/broadcast_tf_launch.py"])
             )
         ]
     )
@@ -144,7 +144,7 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration("run_motors")),
         actions=[
             IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([motors_pkg, "/launch/manual_control.launch.py"])
+                PythonLaunchDescriptionSource([motors_pkg, "/launch/manual_control_launch.py"])
             )
         ]
     )
