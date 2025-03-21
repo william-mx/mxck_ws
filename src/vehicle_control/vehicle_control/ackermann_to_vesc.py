@@ -7,6 +7,7 @@ from ackermann_msgs.msg import AckermannDriveStamped
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64
 import time
+from rclpy.qos import qos_profile_sensor_data
 
 class AckermannToVesc(Node):
     def __init__(self):
@@ -63,13 +64,11 @@ class AckermannToVesc(Node):
         hz = 40  # Expected number of speed values per second
         self.min_values = n_seconds * hz  # Minimum number of values for a valid safety check
         
+        self.qos_profile = qos_profile_sensor_data
+        self.qos_profile.depth = 1
+
         # Create subscribers
-        self.safety_sub = self.create_subscription(
-            AckermannDriveStamped,
-            '/rc/ackermann_cmd',
-            self.safety_check,
-            10
-        )
+        self.safety_sub = self.create_subscription(AckermannDriveStamped, '/rc/ackermann_cmd', self.safety_check, self.qos_profile)
         
         # Driving command subscribers, initially not active
         self.rc_sub = None
@@ -77,10 +76,10 @@ class AckermannToVesc(Node):
         
         # Joystick subscriber for mode updates
         if self.control_type == 'rc':
-            self.joy_sub = self.create_subscription(Joy, '/rc/joy', self.update_mode, 10)
+            self.joy_sub = self.create_subscription(Joy, '/rc/joy', self.update_mode, self.qos_profile)
 
         elif self.control_type == 'joy':
-            self.joy_sub = self.create_subscription(Joy, '/joy', self.update_mode, 10)
+            self.joy_sub = self.create_subscription(Joy, '/joy', self.update_mode, self.qos_profile)
         else:
             self.get_logger().error(f'Invalid control_type: {self.control_type}')
             raise ValueError(f'control_type must be either "rc" or "joy", got {self.control_type}')
@@ -113,8 +112,10 @@ class AckermannToVesc(Node):
     def initialize_subscribers(self):
         """Initialize subscribers for manual and autonomous driving commands."""
         if self.rc_sub is None and self.ad_sub is None:
-            self.rc_sub = self.create_subscription(AckermannDriveStamped, '/rc/ackermann_cmd', lambda x: self.callback(x, self.manu_val), 10)
-            self.ad_sub = self.create_subscription(AckermannDriveStamped,'/autonomous/ackermann_cmd',lambda x: self.callback(x, self.auto_val),10)
+            self.rc_sub = self.create_subscription(AckermannDriveStamped, '/rc/ackermann_cmd', 
+                                                   lambda x: self.callback(x, self.manu_val), self.qos_profile)
+            self.ad_sub = self.create_subscription(AckermannDriveStamped,'/autonomous/ackermann_cmd',
+                                                   lambda x: self.callback(x, self.auto_val),self.qos_profile)
     
     def brake(self):
         # Publishes the brake message hz times in rapid succession

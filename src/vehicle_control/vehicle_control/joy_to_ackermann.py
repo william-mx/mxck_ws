@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.clock import Clock
-
+from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Joy
 from ackermann_msgs.msg import AckermannDriveStamped
 
@@ -65,21 +65,17 @@ class JoyControl(Node):
         self.speed_mapping = get_interp((-1.0, -joy_deadzone, -joy_deadzone + eps, joy_deadzone - eps, joy_deadzone, 1.0), \
                                         (max_backward_speed, -speed_min, 0.0, 0.0, speed_min, max_forward_speed))
         
-        self.qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
-            history=rclpy.qos.HistoryPolicy.KEEP_LAST, depth=1)
+        qos_profile = qos_profile_sensor_data
+        qos_profile.depth = 1
             
         # define messages
         self.ackMsg = AckermannDriveStamped()
       
       	# publish ackermann messages to VESC
-        self.ackermann_pub = self.create_publisher(AckermannDriveStamped, '/rc/ackermann_cmd', 1)
+        self.ackermann_pub = self.create_publisher(AckermannDriveStamped, '/rc/ackermann_cmd', qos_profile)
         
         # subscribe to joy
-        self.joy_sub = self.create_subscription(
-            Joy,
-            '/rc/joy',
-            self.callback,
-            qos_profile=self.qos_policy)
+        self.joy_sub = self.create_subscription(Joy, '/rc/joy', self.callback, qos_profile)
             
         self.joy_sub  # prevent unused variable warning             
          

@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.clock import Clock
 from rclpy.logging import get_logger
-
+from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Int16MultiArray
 
@@ -17,8 +17,8 @@ class RCJoystick(Node):
         super().__init__('rc_to_joy')
 
 
-        self.qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
-            history=rclpy.qos.HistoryPolicy.KEEP_LAST, depth=1)
+        qos_profile = qos_profile_sensor_data
+        qos_profile.depth = 1
 
         self.declare_parameters(
             namespace='',
@@ -67,14 +67,10 @@ class RCJoystick(Node):
         self.joy_msg.buttons = [0] * (self.mode_btn + 1)
 
       	# publish joy message
-        self.joy_pub = self.create_publisher(Joy, '/rc/joy', 2)
+        self.joy_pub = self.create_publisher(Joy, '/rc/joy', qos_profile)
         
         # subscribe to pwm signals from rc receiver
-        self.rc_sub = self.create_subscription(
-            Int16MultiArray,
-            '/veh_remote_ctrl',
-            self.callback,
-            qos_profile=self.qos_policy)
+        self.rc_sub = self.create_subscription(Int16MultiArray, '/veh_remote_ctrl', self.callback, qos_profile)
             
 
 
