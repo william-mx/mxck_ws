@@ -41,8 +41,9 @@
     </visual>
   </link>
   <!-- Lidar joint -->
+  <!-- LiDAR is rotated by 225 degrees (180 + 45 degrees) -->
   <joint name="lidar_joint" type="fixed">
-    <origin xyz="0.1915 0 0.0865" rpy="0 0 3.1415"/>
+    <origin xyz="0.1915 0 0.0865" rpy="0 0 3.9270"/>
     <parent link="base_link"/>
     <child link="laser"/>
     <axis xyz="0 0 1"/>
