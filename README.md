@@ -16,6 +16,6 @@ sudo find . -type f -name '*.py' -exec dos2unix {} \;
 
 Build docker image.
 ```
-sudo docker build -t mxck2_base_humble .
+sudo docker build -t mxck2_humble .
 ```
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Overlaying ROS Workspaces
-ROS2_SH=/opt/ros/foxy/setup.bash
-# ROS2_SH=/opt/ros/humble/setup.bash
+# ROS2_SH=/opt/ros/foxy/setup.bash
+ROS2_SH=/opt/ros/humble/setup.bash
 MICROROS_SH=/microros_ws/install/setup.bash
 VESC_SH=/vesc_ws/install/setup.bash
 RPLIDAR_SH=/rplidar_ws/install/setup.bash
