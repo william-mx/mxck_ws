@@ -7,7 +7,7 @@ import sensor_msgs_py.point_cloud2 as pc2
 from mxck_run.message_utils import get_relative_transform, create_point_cloud_message
 from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import Int16MultiArray
-from rclpy.qos import QoSProfile, ReliabilityPolicy
+from rclpy.qos import qos_profile_sensor_data
 import tf2_geometry_msgs
 
 class UltrasonicSensorProcessor(Node):
@@ -41,15 +41,16 @@ class UltrasonicSensorProcessor(Node):
         }
         self.frames = list(self.index2frame.values())
 
-        # Single Publisher for PointCloud2 message
-        self.publisher = self.create_publisher(PointCloud2, "/scan", 10)
-
         # Fetch transformations using the function
         self.transformations = {frame: get_relative_transform(frame, self.base) for frame in self.frames}
 
-        # Create a QoS profile with BEST_EFFORT reliability
-        qos_profile = QoSProfile(depth = 10, reliability = ReliabilityPolicy.BEST_EFFORT)
-        
+        # Create a QoS profile
+        qos_profile = qos_profile_sensor_data
+        qos_profile.depth = 1
+
+        # Single Publisher for PointCloud2 message
+        self.publisher = self.create_publisher(PointCloud2, "/pdc", qos_profile)
+
         # Subscriber for ultrasonic distances
         self.create_subscription(Int16MultiArray, '/uss_sensors', self.callback, qos_profile)
 
@@ -119,3 +120,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
