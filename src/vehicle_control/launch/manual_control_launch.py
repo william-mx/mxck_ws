@@ -1,0 +1,57 @@
+import os
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+
+    
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    vesc_config = os.path.join(
+        get_package_share_directory('vehicle_control'),
+        'config',
+        'vesc_config.yaml'
+        )
+
+    control_config = os.path.join(
+        get_package_share_directory('vehicle_control'),
+        'config',
+        'control_config.yaml'
+        )
+    
+    vesc=Node(
+        package = 'vesc_driver',
+        name = 'vesc_driver_node',
+        executable = 'vesc_driver_node',
+        parameters = [vesc_config]
+    )
+     
+    rc2joy=Node(
+        package = 'vehicle_control',
+        name = 'rc_to_joy',
+        executable = 'rc_to_joy',
+        parameters = [control_config]
+    )
+
+    joy2ackermann=Node(
+        package = 'vehicle_control',
+        name = 'joy_to_ackermann',
+        executable = 'joy_to_ackermann',
+        parameters = [control_config]
+    )
+
+    ackermann2vesc=Node(
+        package = 'vehicle_control',
+        name = 'ackermann_to_vesc',
+        executable = 'ackermann_to_vesc',
+        parameters = [control_config],
+        output="screen"
+    )
+    
+
+    ld.add_action(rc2joy)
+    ld.add_action(joy2ackermann)
+    ld.add_action(ackermann2vesc)
+    ld.add_action(vesc)
+    
+    return ld
