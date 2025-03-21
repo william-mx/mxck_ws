@@ -1,5 +1,5 @@
-FROM mxwilliam/mxck:mxck-foxy-pytorch-l4t-35.4
-# FROM mxwilliam/mxck:mxck-humble-ubuntu-22.04
+# FROM mxwilliam/mxck:mxck-foxy-pytorch-l4t-35.4
+FROM mxwilliam/mxck:mxck-humble-ubuntu-22.04
 
 # Upgrade pip and install Python packages
 # RUN python3 -m pip install \
