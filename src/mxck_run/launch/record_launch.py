@@ -6,8 +6,7 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 # Example Usage
-# ros2 launch mxck_run record.launch.py filename:=custom_bag format:=sqlite3
-
+# ros2 launch mxck_run record_launch.py filename:=custom_bag format:=sqlite3
 
 # List of topics to record
 topics = [
