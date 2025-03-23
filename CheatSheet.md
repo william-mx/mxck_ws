@@ -113,10 +113,45 @@ sudo loadkeys us  # Example: Set to US layout
 sudo nvpmodel -q
 ```
 
+#### List Available Power Modes (Configs)  
+To list all available power modes defined in your system configuration file:  
+```bash
+cat /etc/nvpmodel.conf
+```
+#### Available Power Modes on Xavier NX  
+The most common modes for Xavier NX are:
+
+| Mode ID | Name            | Description                   |
+|---------|-----------------|------------------------------|
+| 0       | MODE_15W_2CORE   | 2 cores, moderate performance, 15W limit. |
+| 1       | MODE_15W_4CORE   | 4 cores, moderate performance, 15W limit. |
+| 2       | MODE_15W_6CORE   | 6 cores, moderate performance, 15W limit. |
+| 3       | MODE_10W_2CORE   | 2 cores, low power, 10W limit. |
+| 4       | MODE_10W_4CORE   | 4 cores, low power, 10W limit. |
+| 5       | MODE_10W_DESKTOP | 4 cores, low power, optimized for desktop. |
+| 6       | MODE_20W_2CORE   | 2 cores, high performance, 20W limit. |
+| 7       | MODE_20W_4CORE   | 4 cores, high performance, 20W limit. |
+| 8       | MODE_20W_6CORE   | 6 cores, high performance, 20W limit. |
+
+#### Change Power Mode  
+To change to a different power mode, use the following command with the appropriate ID:  
+```bash
+sudo nvpmodel -m <mode_id>
+```
+Example (Switch to **MODE_20W_6CORE**):  
+```bash
+sudo nvpmodel -m 8
+```
+
 #### Check GPU, CPU, and Memory Usage
 
 ```bash
 tegrastats
+```
+
+#### Using jtop (If Installed)
+```bash
+jtop
 ```
 
 ---
