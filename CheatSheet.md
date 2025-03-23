@@ -98,17 +98,6 @@ sudo netstat -plnt
 sudo date -s "YYYY-MM-DD HH:MM:SS"
 ```
 
-Here's a shorter version:  
-
----
-
-### 6. System Date, Time, and Language Settings  
-
-#### Set Date and Time  
-```bash
-sudo date -s "YYYY-MM-DD HH:MM:SS"
-```
-
 #### Change Keyboard Layout (No Reboot Needed)  
 ```bash
 sudo loadkeys us  # Example: Set to US layout
