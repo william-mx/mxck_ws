@@ -6,6 +6,8 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
 from launch_ros.actions import Node
+import subprocess
+
 
 # Define the whitelist as a proper list
 TOPIC_WHITELIST = [
@@ -14,11 +16,16 @@ TOPIC_WHITELIST = [
     "/autonomous/ackermann_cmd",
     "/pdc_visualization",
     "/camera/color/image_raw",
+    "/camera/color/image_jpeg",
     "/camera/imu",
     "/scan",
     "/tf_static"
     "/uss_sensors",
-    "/veh_remote_ctrl"
+    "/veh_remote_ctrl",
+    "/pdc",
+    "/tf_static",
+    "/pose",
+    "/path",
 ]
 
 # Convert the list to a string representation
@@ -79,7 +86,7 @@ def generate_launch_description():
     )
 
     # Conditionally include the RealSense launch file
-    rs_camera_imu = GroupAction(
+    rs_camera = GroupAction(
         condition=IfCondition(
             PythonExpression([
                 "'", LaunchConfiguration("run_camera"), "' == 'true' or '",
@@ -121,12 +128,14 @@ def generate_launch_description():
     )
 
     # Conditionally start micro-ROS agent
-    micro_ros_node = Node(
+    micro_ros_agent = Node(
         package=micro_ros_pkg,
         name="micro_ros_agent",
         executable="micro_ros_agent",
         arguments=["serial", "-b", "921600", "--dev", "/dev/stm32_nucleo"],
-        condition=IfCondition(LaunchConfiguration("run_micro"))
+        respawn=True,
+        respawn_delay=20.0,
+        condition=IfCondition(LaunchConfiguration("run_micro")),
     )
 
     # Conditionally include TF broadcaster
@@ -149,4 +158,31 @@ def generate_launch_description():
         ]
     )
 
-    return LaunchDescription(declare_launch_arguments + [foxglove_launch, rosbridge_launch, rs_camera_imu, lidar_launch, micro_ros_node, tf_broadcast, motors_launch])
+    ld = LaunchDescription(declare_launch_arguments)
+
+    # ===== Launch missing ROS2 nodes =====
+
+    # Get list of currently running nodes
+    result = subprocess.run(['ros2', 'node', 'list'], stdout=subprocess.PIPE, text=True)
+    
+    # Get node names and remove the leading slash
+    running_nodes = [node.lstrip('/') for node in result.stdout.strip().split('\n')] if result.stdout else []
+
+    # Map node name strings to their executables
+    node_names = {
+        'foxglove_bridge': foxglove_launch,
+        'camera/camera': rs_camera,
+        'micro_ros_agent': micro_ros_agent,
+    }
+
+    # Launch node if it's not already running
+    for name, node in node_names.items():
+        if not name in running_nodes:
+            ld.add_action(node)
+
+    ld.add_action(rosbridge_launch)
+    ld.add_action(lidar_launch)
+    ld.add_action(tf_broadcast)
+    ld.add_action(motors_launch)
+
+    return ld
