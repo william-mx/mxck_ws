@@ -54,25 +54,54 @@ To stop a running hotspot (so the Jetson can connect to a normal Wi-Fi network):
 
 ---
 
+
 ### 3. SSH Management
 
-#### Check if SSH is Running
+#### Manage SSH Server (Incoming Connections)
+
+These commands manage the SSH server daemon (`sshd`) on the machine, controlling whether others can connect *to* it. Run these on the machine you want to connect *to* (e.g., the Jetson).
+
+##### Check if SSH Server is Running
 
 ```bash
 systemctl status ssh
 ```
 
-#### Start SSH Service
+##### Start SSH Server Service
 
 ```bash
 sudo systemctl start ssh
 ```
 
-#### Enable SSH Service (start on boot)
+##### Enable SSH Server Service (start on boot)
 
 ```bash
 sudo systemctl enable ssh
 ```
+
+---
+
+#### Manage SSH Client Agent (Outgoing Connections)
+
+These commands manage the SSH agent (`ssh-agent`) on your *local* machine (the one you are connecting *from*). It helps manage your private keys for authenticating *to* other servers.
+
+##### Start SSH Agent for Current Session
+
+```bash
+eval "$(ssh-agent -s)"
+```
+
+* **Brief Explanation:** This command starts the `ssh-agent` program in the background for your current shell session. The agent can hold your decrypted private SSH keys in memory.
+
+##### Add a Private Key to the Agent
+
+After starting the agent, you can add specific private keys to it using the `ssh-add` command.
+
+```bash
+ssh-add ~/.ssh/github_key
+```
+
+* **Example Explanation:** This command adds the private key located at `~/.ssh/github_key` to the running agent. If this key is protected by a passphrase, `ssh-add` will ask you for it *once*. After the key is added, the agent can provide it automatically when you SSH to hosts that accept the corresponding public key (like GitHub, or your Jetsons if configured), eliminating the need to re-enter the passphrase for that session. You can run `ssh-add` for multiple keys.
 
 ---
 
