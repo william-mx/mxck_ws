@@ -145,6 +145,24 @@ sudo netstat -plnt
 sudo date -s "YYYY-MM-DD HH:MM:SS"
 ```
 
+##### Check Status of Network Time Sync
+
+```bash
+timedatectl status
+```
+
+##### Enable Auto Sync with Internet Time (Turn ON)
+
+```bash
+sudo timedatectl set-ntp true
+```
+
+##### Disable Auto Sync with Internet Time (Turn OFF)
+
+```bash
+sudo timedatectl set-ntp false
+```
+
 #### Change Keyboard Layout (No Reboot Needed)  
 ```bash
 sudo loadkeys us  # Example: Set to US layout
