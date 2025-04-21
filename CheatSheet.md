@@ -34,6 +34,24 @@ nmcli dev wifi list
 nmcli dev wifi connect NETWORK_SSID password NETWORK_PASSWORD
 ```
 
+#### Stop Hotspot
+
+To stop a running hotspot (so the Jetson can connect to a normal Wi-Fi network):
+
+1. List all active and saved connections:
+   ```bash
+   nmcli connection show
+   ```
+2. Find the hotspot connection name (e.g. `Hotspot`, or similar)
+3. Bring the hotspot connection down:
+   ```bash
+   nmcli connection down <name_of_hotspot>
+   ```
+   Example:
+   ```bash
+   nmcli connection down Hotspot
+   ```
+
 ---
 
 ### 3. SSH Management
