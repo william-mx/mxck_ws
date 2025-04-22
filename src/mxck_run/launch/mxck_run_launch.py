@@ -15,9 +15,9 @@ TOPIC_WHITELIST = [
     "/rc/ackermann_cmd",
     "/autonomous/ackermann_cmd",
     "/pdc_visualization",
-    "/camera/color/image_raw",
+    "/camera/camera/color/image_raw",
     "/camera/color/image_jpeg",
-    "/camera/imu",
+    "/camera/camera/imu",
     "/scan",
     "/tf_static"
     "/uss_sensors",
@@ -26,6 +26,8 @@ TOPIC_WHITELIST = [
     "/tf_static",
     "/pose",
     "/path",
+    "/result",
+    "/waypoint",
 ]
 
 # Convert the list to a string representation
@@ -173,6 +175,7 @@ def generate_launch_description():
         'foxglove_bridge': foxglove_launch,
         'camera/camera': rs_camera,
         'micro_ros_agent': micro_ros_agent,
+        'rplidar_node': lidar_launch,
     }
 
     # Launch node if it's not already running
@@ -181,7 +184,6 @@ def generate_launch_description():
             ld.add_action(node)
 
     ld.add_action(rosbridge_launch)
-    ld.add_action(lidar_launch)
     ld.add_action(tf_broadcast)
     ld.add_action(motors_launch)
 
