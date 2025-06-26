@@ -16,10 +16,6 @@
 	// Run container in privileged mode with NVIDIA CUDA support
 	"runArgs": [
 		"--privileged",
-		"--gpus=all",
-		"--runtime=nvidia",
-		"--env=NVIDIA_VISIBLE_DEVICES=all",
-		"--env=NVIDIA_DRIVER_CAPABILITIES=all",
 		"--network=host"
 	],
 	"mounts": [
