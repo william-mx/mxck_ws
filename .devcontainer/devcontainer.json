@@ -16,7 +16,8 @@
 	// Run container in privileged mode with NVIDIA CUDA support
 	"runArgs": [
 		"--privileged",
-		"--network=host"
+		"--network=mxck0000-net",
+		"--publish=8765:8765"
 	],
 	"mounts": [
 		"source=/dev,target=/dev,type=bind"
