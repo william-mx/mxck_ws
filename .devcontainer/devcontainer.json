@@ -1,27 +1,9 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the 
-// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
 {
 	"name": "MXCK2 Workspace",
-	"build": {
-		"context": "..",
-		"dockerfile": "../Dockerfile"
-	},
-
-	// Set the working directory inside the container
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "control",
 	"workspaceFolder": "/mxck2_ws",
 
-	// Mount the local folder into the container
-	"workspaceMount": "source=/home/mxck/mxck2_ws,target=/mxck2_ws,type=bind",
-
-	// Run container in privileged mode with NVIDIA CUDA support
-	"runArgs": [
-		"--privileged",
-		"--network=mxck0000-net",
-		"--publish=8765:8765"
-	],
-	"mounts": [
-		"source=/dev,target=/dev,type=bind"
-	],
 	"customizations": {
 		"vscode": {
 			"extensions": [
