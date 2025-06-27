@@ -11,19 +11,24 @@ import subprocess
 
 # Define the whitelist as a proper list
 TOPIC_WHITELIST = [
-    "/imu",
+    # === Base Topics ===
+    "/tf_static",
     "/rc/ackermann_cmd",
     "/autonomous/ackermann_cmd",
-    "/pdc_visualization",
+    "/scan",
+
+    # === Micro-ROS Topics ===
+    "/imu",
+    "/uss_sensors",
+    "/veh_remote_ctrl",
+
+    # === Camera Topics ===
     "/camera/camera/color/image_raw",
     "/camera/color/image_jpeg",
     "/camera/camera/imu",
-    "/scan",
-    "/tf_static"
-    "/uss_sensors",
-    "/veh_remote_ctrl",
+
+    # === Custom Topics ===
     "/pdc",
-    "/tf_static",
     "/pose",
     "/path",
     "/result",
