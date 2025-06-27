@@ -42,7 +42,6 @@ def generate_launch_description():
     # List of launch arguments
     launch_arguments = [
         ("run_foxglove", "false", "Flag to run Foxglove bridge"),
-        ("run_rosbridge", "false", "Flag to run ROS bridge"),
         ("run_camera", "false", "Flag to run RGB camera"),
         ("run_lidar", "false", "Flag to run LiDAR"),
         ("run_micro", "false", "Flag to run micro-ROS"),
@@ -81,16 +80,6 @@ def generate_launch_description():
         ]
     )
 
-    # Conditionally include the ROSBridge launch file
-    rosbridge_launch = GroupAction(
-        condition=IfCondition(LaunchConfiguration("run_rosbridge")),
-        actions=[
-            IncludeLaunchDescription(
-                XMLLaunchDescriptionSource([rosbridge_pkg, "/launch/rosbridge_websocket_launch.xml"]),
-                launch_arguments={"port": "9090"}.items()
-            )
-        ]
-    )
 
     # Conditionally include the RealSense launch file
     rs_camera = GroupAction(
