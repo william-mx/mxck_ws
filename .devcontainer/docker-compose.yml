@@ -1,7 +1,9 @@
 version: "3.8"
 
 x-common-setup: &common-setup
-  image: mxck2_base
+  build:
+    context: ..
+    dockerfile: Dockerfile
   privileged: true
   network_mode: mxck0021-net
   volumes:
@@ -31,3 +33,4 @@ services:
     <<: *common-setup
     container_name: mxck2_micro
     command: bash -i -c "run_micro"
+    
