@@ -130,6 +130,20 @@ RUN apt install --yes ros-foxy-udp-msgs \
     && rosdep update && rosdep install --from-paths src --ignore-src -r -y \
     && colcon build
 
+###############################################################################
+# ROS 2 Vision Msgs Setup from Source
+###############################################################################
+
+# NOTE: Although we are using ROS Foxy, we install the humble branch of vision_msgs
+# because it defines newer message types that are required for our application.
+RUN mkdir -p /vision_ws/src \
+    && cd /vision_ws/src \
+    && git clone -b humble https://github.com/ros-perception/vision_msgs.git \
+    && rm -rf vision_msgs/vision_msgs_rviz_plugins \
+    && cd /vision_ws \
+    && . /opt/ros/foxy/setup.sh \
+    && rosdep update && rosdep install --from-paths src --ignore-src -r -y \
+    && colcon build
 
 RUN apt-get install -y \
     ros-$ROS_DISTRO-rosbridge-suite \
