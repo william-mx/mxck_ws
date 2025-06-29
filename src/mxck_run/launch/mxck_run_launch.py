@@ -26,6 +26,11 @@ TOPIC_WHITELIST = [
     "/camera/camera/color/image_raw",
     "/camera/color/image_jpeg",
     "/camera/camera/imu",
+    "/camera/camera/depth/image_rect_raw",
+    "/camera/camera/infra1/image_rect_raw",
+    "/camera/camera/infra2/image_rect_raw",
+    "/camera/camera/depth/color/points",
+    "/camera/camera/rgbd",
 
     # === Custom Topics ===
     "/pdc",
@@ -62,7 +67,6 @@ def generate_launch_description():
     micro_ros_pkg = "micro_ros_agent"
     tf_broadcast_pkg = FindPackageShare("mxck_run")
     foxglove_pkg = FindPackageShare("foxglove_bridge")
-    rosbridge_pkg = FindPackageShare("rosbridge_server")
     motors_pkg = FindPackageShare("vehicle_control")
 
     # Conditionally include the Foxglove launch file
@@ -177,7 +181,6 @@ def generate_launch_description():
         if not name in running_nodes:
             ld.add_action(node)
 
-    ld.add_action(rosbridge_launch)
     ld.add_action(tf_broadcast)
     ld.add_action(motors_launch)
 
